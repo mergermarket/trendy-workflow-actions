@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "deploy-setup-json= ${{ inputs.deploy-setup-json }}"
       - name: Notify Teams
-        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        uses: patrickpaulin/ms-teams-deploy-card@3.1.2
         with:
           github-token: ${{ github.token }} # Use built-in more restricted token
           webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
@@ -48,7 +48,7 @@ jobs:
         node: ${{fromJSON(inputs.deploy-setup-json).setup.*.name}}
     steps:
       - name: Notify Teams
-        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        uses: patrickpaulin/ms-teams-deploy-card@3.1.2
         with:
           github-token: ${{ github.token }} # Use built-in more restricted token
           webhook-uri: 'https://iontradingcom.webhook.office.com/webhookb2/4ad386b9-0d83-4efe-a29f-4349c6bbf099@768fe7d4-ebee-41a7-9851-d5825ecdd396/IncomingWebhook/8d286a8c34db44958965a38e56c77698/c630c3f1-f660-43e4-89ae-edf0c679a53c'
