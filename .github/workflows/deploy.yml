@@ -1,4 +1,4 @@
-name: trendy-workflow-actions/build-deploy
+name: trendy-workflow-actions/build
 
 on:
   workflow_call:
@@ -22,11 +22,7 @@ on:
       text-to-find-in-commit-to-skip-build:
         required: false
         default: "[skip ci]"
-        type: string
-      notify-teams-on-build-exit:
-        required: false
-        default: true
-        type: boolean
+        type: string      
       copy-platform-config:
         required: false
         default: true
@@ -64,15 +60,15 @@ on:
         default: 14
         type: number
       before-deploy-commands-json:
-        required: true
+        required: false
         default: '[]'
         type: string
       deploy-commands-json:
-        required: true
+        required: false
         default: '[]'
         type: string
       after-deploy-commands-json:
-        required: true
+        required: false
         default: '[]'
         type: string
     secrets:
@@ -105,8 +101,7 @@ jobs:
           echo "notify-teams-on-failure= ${{ inputs.notify-teams-on-failure }}"
           echo "branch-name-for-filtering-deployment= ${{ inputs.branch-name-for-filtering-deployment }}"
           echo "allow-to-skip-build= ${{ inputs.allow-to-skip-build }}"
-          echo "text-to-find-in-commit-to-skip-build= ${{ inputs.text-to-find-in-commit-to-skip-build }}"
-          echo "notify-teams-on-build-exit= ${{ inputs.notify-teams-on-build-exit }}"
+          echo "text-to-find-in-commit-to-skip-build= ${{ inputs.text-to-find-in-commit-to-skip-build }}"          
           echo "copy-platform-config= ${{ inputs.copy-platform-config }}"
           echo "create-npmrc= ${{ inputs.create-npmrc }}"
           echo "setup-node= ${{ inputs.setup-node }}"

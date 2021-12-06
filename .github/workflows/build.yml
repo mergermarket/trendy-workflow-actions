@@ -1,13 +1,9 @@
-name: trendy-workflow-actions/build-deploy
+name: trendy-workflow-actions/build
 
 on:
   workflow_call:
     inputs:
       branch-filtering-before-deployment:
-        required: false
-        default: true
-        type: boolean
-      notify-teams-on-failure:
         required: false
         default: true
         type: boolean
@@ -94,7 +90,6 @@ jobs:
       - name: Print input paramters
         run: |
           echo "branch-filtering-before-deployment= ${{ inputs.branch-filtering-before-deployment }}"
-          echo "notify-teams-on-failure= ${{ inputs.notify-teams-on-failure }}"
           echo "branch-name-for-filtering-deployment= ${{ inputs.branch-name-for-filtering-deployment }}"
           echo "allow-to-skip-build= ${{ inputs.allow-to-skip-build }}"
           echo "text-to-find-in-commit-to-skip-build= ${{ inputs.text-to-find-in-commit-to-skip-build }}"
