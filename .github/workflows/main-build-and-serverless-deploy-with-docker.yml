@@ -1,0 +1,318 @@
+name: trendy-workflow-actions/main-build-and-serverless-deploy-with-docker
+
+on:
+  workflow_call:
+    inputs:
+      do-branch-filtering-before-start:
+        required: false
+        default: true
+        type: boolean
+      do-step-notify-teams-on-failure:
+        required: false
+        default: true
+        type: boolean
+      step-notify-teams-job-name-aslive:
+        required: false
+        default: 'Deploy to aslive'
+        type: string
+      step-notify-teams-job-name-live:
+        required: false
+        default: 'Deploy to live'
+        type: string
+      branch-name-for-branch-filtering-before-start:
+        required: false
+        default: 'refs/heads/main'
+        type: string
+      step-run-deployment-in-docker-command-aslive:
+        required: true
+        default: '?Command?'
+        type: string
+      step-run-deployment-in-docker-command-live:
+        required: true
+        default: '?Command?'
+        type: string
+      allow-to-skip:
+        required: false
+        default: false
+        type: boolean
+      text-to-find-in-commit-to-skip:
+        required: false
+        default: "[skip ci]"
+        type: string
+      do-step-notify-teams-on-build-exit:
+        required: false
+        default: true
+        type: boolean
+      do-step-copy-platform-config:
+        required: false
+        default: true
+        type: boolean
+      do-step-create-npmrc:
+        required: false
+        default: true
+        type: boolean
+      do-step-setup-node:
+        required: false
+        default: true
+        type: boolean
+      do-step-npm-install:
+        required: false
+        default: true
+        type: boolean
+      do-step-npm-run-test:
+        required: false
+        default: true
+        type: boolean
+      do-step-run-integration-test-in-docker:
+        required: false
+        default: true
+        type: boolean
+      do-job-deploy-to-aslive:
+        required: false
+        default: true
+        type: boolean
+      do-job-deploy-to-live:
+        required: false
+        default: true
+        type: boolean
+      step-configure-aws-region:
+        required: false
+        default: "eu-west-1"
+        type: string
+      step-copy-platform-config-setup-json:
+        required: false
+        default: ""
+        type: string
+      step-setup-node-version:
+        required: false
+        default: 14
+        type: number
+      step-npm-install-command:
+        required: false
+        default: "npm ci"
+        type: string
+      step-npm-run-test-command:
+        required: false
+        default: "npm run test"
+        type: string
+      step-run-integration-test-in-docker-command:
+        required: false
+        default: "${GITHUB_WORKSPACE}/scripts/docker-run-integration-tests.sh"
+        type: string
+    secrets:
+      MSTEAMS_WEBHOOK:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      NPM_ACCESS_TOKEN:
+        required: true
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  Build-and-Test:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    env:
+      JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
+      VERSION: ${{ github.sha }}
+      GITHUB_TOKEN: dummy-token
+    if: ${{ !inputs.allow-to-skip || ( inputs.allow-to-skip && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip}}')) }}
+    steps:
+      - name: Print input paramters
+        run: |
+          echo "allow-to-skip= ${{ inputs.allow-to-skip }}"
+          echo "text-to-find-in-commit-to-skip= ${{ inputs.text-to-find-in-commit-to-skip }}"
+          echo "do-step-notify-teams-on-build-exit= ${{ inputs.do-step-notify-teams-on-build-exit }}"
+          echo "do-step-copy-platform-config= ${{ inputs.do-step-copy-platform-config }}"
+          echo "do-step-create-npmrc= ${{ inputs.do-step-create-npmrc }}"
+          echo "do-step-setup-node= ${{ inputs.do-step-setup-node }}"
+          echo "do-step-npm-install= ${{ inputs.do-step-npm-install }}"
+          echo "do-step-npm-run-test= ${{ inputs.do-step-npm-run-test }}"
+          echo "do-step-run-integration-test-in-docker= ${{ inputs.do-step-run-integration-test-in-docker }}"
+          echo "step-copy-platform-config-setup-json= ${{ inputs.step-copy-platform-config-setup-json }}"
+          echo "step-configure-aws-region= ${{ inputs.step-configure-aws-region }}"
+          echo "step-setup-node-version= ${{ inputs.step-setup-node-version }}"
+          echo "step-npm-install-command= ${{ inputs.step-npm-install-command }}"
+          echo "step-npm-run-test-command= ${{ inputs.step-npm-run-test-command }}"
+          echo "step-run-integration-test-in-docker-command= ${{ inputs.step-run-integration-test-in-docker-command }}"
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        if: ${{ inputs.do-step-notify-teams-on-build-exit }}
+        with:
+          github-token: ${{ github.token }}
+          webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
+          card-layout-exit: complete
+          show-on-start: false
+          custom-facts: |
+            - name: Job Name
+              value: Build-and-Test
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.step-configure-aws-region }}
+      - name: Copy platform-config from s3
+        if: ${{ inputs.do-step-copy-platform-config }}
+        run: |
+          COPY_PLATFORM_CONFIG_INPUT_JSON='${{inputs.step-copy-platform-config-setup-json}}'
+          COPY_PLATFORM_CONFIG_INPUT_SRC=""
+          COPY_PLATFORM_CONFIG_INPUT_DEST=""
+          INPUT_DEST=""
+          for row in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .items[]); 
+          do 
+          COPY_PLATFORM_CONFIG_INPUT_SRC=$(jq -r '.src' <<< "${row}");
+          COPY_PLATFORM_CONFIG_INPUT_DEST=$(jq -r '.dest' <<< "${row}");
+          echo "run: aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST";
+          aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST;
+          done
+      - name: Create .npmrc
+        if: ${{ inputs.do-step-create-npmrc }}
+        run: |
+          echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        if: ${{ inputs.do-step-setup-node }}
+        with:
+          node-version: ${{ inputs.step-setup-node-version }}
+          cache: npm
+      - name: npm - Install dependencies
+        if: ${{ inputs.do-step-npm-install }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: ${{ inputs.step-npm-install-command }}
+      - name: npm - Run tests
+        if: ${{ inputs.do-step-npm-run-test }}
+        run: |
+          ${{ inputs.step-npm-run-test-command }}
+      - name: Run integration tests in Docker
+        if: ${{ inputs.do-step-run-integration-test-in-docker }}
+        run: |
+          ${{ inputs.step-run-integration-test-in-docker-command }}
+  Deploy-to-aslive:
+    needs: Build-and-Test
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    env:
+      JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
+      VERSION: ${{ github.sha }}
+      GITHUB_TOKEN: dummy-token
+    if: ${{ inputs.do-job-deploy-to-aslive && (!inputs.do-branch-filtering-before-start || github.ref == inputs.branch-name-for-branch-filtering-before-start) }}
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        if: ${{ inputs.do-step-notify-teams-on-failure }}
+        with:
+          github-token: ${{ github.token }} # Use built-in more restricted token
+          webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
+          card-layout-exit: complete
+          show-on-start: false
+          show-on-failure: true
+          custom-facts: |
+            - name: Job Name
+              value: '${{ inputs.step-notify-teams-job-name-aslive }}'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.step-configure-aws-region }}
+      - name: Copy platform-config from s3
+        if: ${{ inputs.do-step-copy-platform-config }}
+        run: |
+          COPY_PLATFORM_CONFIG_INPUT_JSON='${{inputs.step-copy-platform-config-setup-json}}'
+          COPY_PLATFORM_CONFIG_INPUT_SRC=""
+          COPY_PLATFORM_CONFIG_INPUT_DEST=""
+          INPUT_DEST=""
+          for row in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .items[]); 
+          do 
+          COPY_PLATFORM_CONFIG_INPUT_SRC=$(jq -r '.src' <<< "${row}");
+          COPY_PLATFORM_CONFIG_INPUT_DEST=$(jq -r '.dest' <<< "${row}");
+          echo "run: aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST";
+          aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST;
+          done
+      - name: Create .npmrc
+        if: ${{ inputs.do-step-create-npmrc }}
+        run: |
+          echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc      
+      - name: Run deployment in Docker
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ${{ inputs.step-run-deployment-in-docker-command-aslive }}
+  Deploy-to-live:
+    needs: Deploy-to-aslive
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    env:
+      JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
+      VERSION: ${{ github.sha }}
+      GITHUB_TOKEN: dummy-token
+    if: ${{ inputs.do-job-deploy-to-live && (!inputs.do-branch-filtering-before-start || github.ref == inputs.branch-name-for-branch-filtering-before-start) }}
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        if: ${{ inputs.do-step-notify-teams-on-failure }}
+        with:
+          github-token: ${{ github.token }} # Use built-in more restricted token
+          webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
+          card-layout-exit: complete
+          show-on-start: false
+          show-on-failure: true
+          custom-facts: |
+            - name: Job Name
+              value: '${{ inputs.step-notify-teams-job-name-aslive }}'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.step-configure-aws-region }}
+      - name: Copy platform-config from s3
+        if: ${{ inputs.do-step-copy-platform-config }}
+        run: |
+          COPY_PLATFORM_CONFIG_INPUT_JSON='${{inputs.step-copy-platform-config-setup-json}}'
+          COPY_PLATFORM_CONFIG_INPUT_SRC=""
+          COPY_PLATFORM_CONFIG_INPUT_DEST=""
+          INPUT_DEST=""
+          for row in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .items[]); 
+          do 
+          COPY_PLATFORM_CONFIG_INPUT_SRC=$(jq -r '.src' <<< "${row}");
+          COPY_PLATFORM_CONFIG_INPUT_DEST=$(jq -r '.dest' <<< "${row}");
+          echo "run: aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST";
+          aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST;
+          done
+      - name: Create .npmrc
+        if: ${{ inputs.do-step-create-npmrc }}
+        run: |
+          echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc      
+      - name: Run deployment in Docker
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ${{ inputs.step-run-deployment-in-docker-command-live }}

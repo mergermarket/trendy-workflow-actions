@@ -1,0 +1,267 @@
+name: trendy-workflow-actions/build-deploy
+
+on:
+  workflow_call:
+    inputs:
+      branch-filtering-before-deployment:
+        required: false
+        default: true
+        type: boolean
+      notify-teams-on-failure:
+        required: false
+        default: true
+        type: boolean
+      branch-name-for-filtering-deployment:
+        required: false
+        default: "refs/heads/main"
+        type: string
+      allow-to-skip-build:
+        required: false
+        default: false
+        type: boolean
+      text-to-find-in-commit-to-skip-build:
+        required: false
+        default: "[skip ci]"
+        type: string
+      notify-teams-on-build-exit:
+        required: false
+        default: true
+        type: boolean
+      copy-platform-config:
+        required: false
+        default: true
+        type: boolean
+      create-npmrc:
+        required: false
+        default: true
+        type: boolean
+      setup-node:
+        required: false
+        default: true
+        type: boolean
+      npm-install:
+        required: false
+        default: true
+        type: boolean
+      configure-aws-region:
+        required: false
+        default: "eu-west-1"
+        type: string
+      copy-platform-config-src-bucket-prefix:
+        required: false
+        default: "s3://acuris-platform-config"
+        type: string
+      copy-platform-config-dest-path-prefix:
+        required: false
+        default: "./platform-config"
+        type: string
+      copy-platform-config-download-list-json:
+        required: false
+        default: '[]'
+        type: string
+      setup-node-version:
+        required: false
+        default: 14
+        type: number
+      build-commands-json:
+        required: false
+        default: '[]'
+        type: string
+      deploy-setup-json:
+        required: true
+        default: '{"setup":[]}'
+        type: string
+    secrets:
+      MSTEAMS_WEBHOOK:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      NPM_ACCESS_TOKEN:
+        required: true
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    env:
+      JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
+      VERSION: ${{ github.sha }}
+      GITHUB_TOKEN: dummy-token
+    if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
+    steps:
+      - name: Print input paramters
+        run: |
+          echo "branch-filtering-before-deployment= ${{ inputs.branch-filtering-before-deployment }}"
+          echo "notify-teams-on-failure= ${{ inputs.notify-teams-on-failure }}"
+          echo "branch-name-for-filtering-deployment= ${{ inputs.branch-name-for-filtering-deployment }}"
+          echo "allow-to-skip-build= ${{ inputs.allow-to-skip-build }}"
+          echo "text-to-find-in-commit-to-skip-build= ${{ inputs.text-to-find-in-commit-to-skip-build }}"
+          echo "notify-teams-on-build-exit= ${{ inputs.notify-teams-on-build-exit }}"
+          echo "copy-platform-config= ${{ inputs.copy-platform-config }}"
+          echo "create-npmrc= ${{ inputs.create-npmrc }}"
+          echo "setup-node= ${{ inputs.setup-node }}"
+          echo "npm-install= ${{ inputs.npm-install }}"
+          echo "configure-aws-region= ${{ inputs.configure-aws-region }}"
+          echo "copy-platform-config-src-bucket-prefix= ${{ inputs.copy-platform-config-src-bucket-prefix }}"
+          echo "copy-platform-config-dest-path-prefix= ${{ inputs.copy-platform-config-dest-path-prefix }}"
+          echo "copy-platform-config-download-list-json= ${{ inputs.copy-platform-config-download-list-json }}"
+          echo "setup-node-version= ${{ inputs.setup-node-version }}"
+          echo "build-commands-json= ${{ inputs.build-commands-json }}"
+          echo "deploy-setup-json= ${{ inputs.deploy-setup-json }}"
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        if: ${{ inputs.notify-teams-on-build-exit }}
+        with:
+          github-token: ${{ github.token }}
+          webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
+          card-layout-exit: complete
+          show-on-start: false
+          custom-facts: |
+            - name: Job Name
+              value: Build
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.configure-aws-region }}
+      - name: Copy platform-config from s3
+        if: ${{ inputs.copy-platform-config }}
+        run: |
+          COPY_PLATFORM_CONFIG_INPUT_JSON='${{inputs.copy-platform-config-download-list-json}}'
+          COPY_PLATFORM_CONFIG_INPUT_SRC=""
+          COPY_PLATFORM_CONFIG_INPUT_DEST=""
+          ACCOUNT_ITEM_STR=""
+          for accountItem in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .[]); 
+          do 
+            ACCOUNT_ITEM_STR=$(echo $accountItem | sed -e 's/^"//' -e 's/"$//')
+            COPY_PLATFORM_CONFIG_INPUT_SRC="${{inputs.copy-platform-config-src-bucket-prefix}}/$ACCOUNT_ITEM_STR/";
+            COPY_PLATFORM_CONFIG_INPUT_DEST="${{inputs.copy-platform-config-dest-path-prefix}}/$ACCOUNT_ITEM_STR";
+            echo "run: aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST";
+            aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST;
+          done
+      - name: Create .npmrc
+        if: ${{ inputs.create-npmrc }}
+        run: |
+          echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        if: ${{ inputs.setup-node }}
+        with:
+          node-version: ${{ inputs.setup-node-version }}
+          cache: npm
+      - name: Run build commands
+        if: ${{ inputs.npm-install }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: |
+          set -e
+          BUILD_COMMANDS_JSON='${{ inputs.build-commands-json }}'
+          COMMAND_STR=""
+          echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done
+
+  Deploy:
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    env:
+      JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
+      VERSION: ${{ github.sha }}
+      GITHUB_TOKEN: dummy-token
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        node: ${{fromJSON(inputs.deploy-setup-json).setup.*.name}}
+    if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        if: ${{ inputs.notify-teams-on-failure }}
+        with:
+          github-token: ${{ github.token }} # Use built-in more restricted token
+          webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
+          card-layout-exit: complete
+          show-on-start: false
+          show-on-failure: true
+          custom-facts: |
+            - name: Job Name
+              value: 'Deployment - ${{ matrix.node }}'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.configure-aws-region }}
+      - name: Copy platform-config from s3
+        if: ${{ inputs.copy-platform-config }}
+        run: |
+          COPY_PLATFORM_CONFIG_INPUT_JSON='${{inputs.copy-platform-config-download-list-json}}'
+          COPY_PLATFORM_CONFIG_INPUT_SRC=""
+          COPY_PLATFORM_CONFIG_INPUT_DEST=""
+          ACCOUNT_ITEM_STR=""
+          for accountItem in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .[]); 
+          do 
+            ACCOUNT_ITEM_STR=$(echo $accountItem | sed -e 's/^"//' -e 's/"$//')
+            COPY_PLATFORM_CONFIG_INPUT_SRC="${{inputs.copy-platform-config-src-bucket-prefix}}/$ACCOUNT_ITEM_STR/";
+            COPY_PLATFORM_CONFIG_INPUT_DEST="${{inputs.copy-platform-config-dest-path-prefix}}/$ACCOUNT_ITEM_STR";
+            echo "run: aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST";
+            aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST;
+          done
+      - name: Create .npmrc
+        if: ${{ inputs.create-npmrc }}
+        run: |
+          echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        if: ${{ inputs.setup-node }}
+        with:
+          node-version: ${{ inputs.setup-node-version }}
+          cache: npm
+      - name: Run before-deployment commands
+        run: |
+          set -e
+          DEPLOYMENT_SETUP_JSON='${{ inputs.deploy-setup-json }}'
+          echo $DEPLOYMENT_SETUP_JSON | jq -c '.setup[] | select(.name=="${{ matrix.node }}") | .commnads.before[]?' | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done
+      - name: Run deployment commands
+        run: |
+          set -e
+          DEPLOYMENT_SETUP_JSON='${{ inputs.deploy-setup-json }}'
+          echo $DEPLOYMENT_SETUP_JSON | jq -c '.setup[] | select(.name=="${{ matrix.node }}") | .commnads.deploy[]?' | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done
+      - name: Run after-deployment commands
+        run: |
+          set -e
+          DEPLOYMENT_SETUP_JSON='${{ inputs.deploy-setup-json }}'
+          echo $DEPLOYMENT_SETUP_JSON | jq -c '.setup[] | select(.name=="${{ matrix.node }}") | .commnads.after[]?' | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done

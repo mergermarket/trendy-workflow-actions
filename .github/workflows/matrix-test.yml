@@ -1,0 +1,86 @@
+# sample usage:
+# jobs:
+#   run-all:
+#     uses: mergermarket/trendy-workflow-actions/.github/workflows/matrix-test.yml@main
+#     with:
+#       deploy-setup-json: '{"setup":[ { "name": "ci", "commnads": { "before": [ "echo \"beforeCommands ci\"" ], "deploy": [ "echo \"deployCommands ci\"" ], "after": [ "echo \"afterCommands ci\"" ]}  },{"name": "aslive","commnads": {"before": [],"deploy": [ "echo \"deployCommands aslive\"" ],"after": []}}]}'      
+
+name: trendy-workflow-actions/matrix-test
+
+on:
+  workflow_call:
+    inputs:      
+      deploy-setup-json:
+        required: true
+        default: '{"setup":[]}'
+        type: string
+
+jobs:
+  Build-and-Test:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Print input paramters
+        run: |
+          echo "deploy-setup-json= ${{ inputs.deploy-setup-json }}"
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        with:
+          github-token: ${{ github.token }} # Use built-in more restricted token
+          webhook-uri: ''
+          card-layout-exit: complete
+          show-on-start: false
+          custom-facts: |
+            - name: Job Name
+              value: 'Build'
+  Deploy:
+    needs: Build-and-Test
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        node: ${{fromJSON(inputs.deploy-setup-json).setup.*.name}}
+    steps:
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        with:
+          github-token: ${{ github.token }} # Use built-in more restricted token
+          webhook-uri: 'https://iontradingcom.webhook.office.com/webhookb2/4ad386b9-0d83-4efe-a29f-4349c6bbf099@768fe7d4-ebee-41a7-9851-d5825ecdd396/IncomingWebhook/8d286a8c34db44958965a38e56c77698/c630c3f1-f660-43e4-89ae-edf0c679a53c'
+          card-layout-exit: complete
+          show-on-start: false
+          show-on-failure: true
+          custom-facts: |
+            - name: Job Name
+              value: 'Deploy ${{ matrix.node }}'
+      - name: Run before-deployment commands
+        run: |
+          set -e
+          DEPLOYMENT_SETUP_JSON='${{ inputs.deploy-setup-json }}'
+          echo $DEPLOYMENT_SETUP_JSON | jq -c '.setup[] | select(.name=="${{ matrix.node }}") | .commnads.before[]?' | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done
+      - name: Run deployment commands
+        run: |
+          set -e
+          DEPLOYMENT_SETUP_JSON='${{ inputs.deploy-setup-json }}'
+          echo $DEPLOYMENT_SETUP_JSON | jq -c '.setup[] | select(.name=="${{ matrix.node }}") | .commnads.deploy[]?' | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done
+      - name: Run after-deployment commands
+        run: |
+          set -e
+          DEPLOYMENT_SETUP_JSON='${{ inputs.deploy-setup-json }}'
+          echo $DEPLOYMENT_SETUP_JSON | jq -c '.setup[] | select(.name=="${{ matrix.node }}") | .commnads.after[]?' | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "run: $COMMAND_STR";
+            eval $COMMAND_STR  
+          done
+          
+
