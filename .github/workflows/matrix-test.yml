@@ -27,7 +27,8 @@ jobs:
     steps:
       - name: Print input paramters
         run: |
-          echo "deploy-setup-json= ${{ inputs.deploy-setup-json }}"
+          echo 'inputs:'
+          echo '${{toJSON(inputs)}}'
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@3.1.2
         with:

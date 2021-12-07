@@ -133,33 +133,8 @@ jobs:
     steps:
       - name: Print input paramters
         run: |
-          echo "allow-to-skip= ${{ inputs.allow-to-skip }}"
-          echo "do-branch-filtering-before-start= ${{ inputs.do-branch-filtering-before-start }}"
-          echo "do-step-notify-teams-on-failure= ${{ inputs.do-step-notify-teams-on-failure }}"
-          echo "step-notify-teams-job-name-aslive= ${{ inputs.step-notify-teams-job-name-aslive }}"
-          echo "step-notify-teams-job-name-live= ${{ inputs.step-notify-teams-job-name-live }}"
-          echo "branch-name-for-branch-filtering-before-start= ${{ inputs.branch-name-for-branch-filtering-before-start }}"
-          echo "step-run-deployment-command-aslive= ${{ inputs.step-run-deployment-command-aslive }}"
-          echo "step-run-deployment-command-live= ${{ inputs.step-run-deployment-command-live }}"
-          echo "allow-to-skip= ${{ inputs.allow-to-skip }}"
-          echo "text-to-find-in-commit-to-skip= ${{ inputs.text-to-find-in-commit-to-skip }}"
-          echo "do-step-notify-teams-on-build-exit= ${{ inputs.do-step-notify-teams-on-build-exit }}"
-          echo "do-step-copy-platform-config= ${{ inputs.do-step-copy-platform-config }}"
-          echo "do-step-create-npmrc= ${{ inputs.do-step-create-npmrc }}"
-          echo "do-step-setup-node= ${{ inputs.do-step-setup-node }}"
-          echo "do-step-npm-install= ${{ inputs.do-step-npm-install }}"
-          echo "do-step-npm-run-test= ${{ inputs.do-step-npm-run-test }}"
-          echo "do-step-run-integration-test-in-docker= ${{ inputs.do-step-run-integration-test-in-docker }}"
-          echo "do-job-deploy-to-aslive= ${{ inputs.do-job-deploy-to-aslive }}"
-          echo "do-job-deploy-to-live= ${{ inputs.do-job-deploy-to-live }}"
-          echo "step-configure-aws-region= ${{ inputs.step-configure-aws-region }}"
-          echo "step-copy-platform-config-setup-src-bucket= ${{ inputs.step-copy-platform-config-setup-src-bucket }}"
-          echo "step-copy-platform-config-setup-dest-path= ${{ inputs.step-copy-platform-config-setup-dest-path }}"
-          echo "step-copy-platform-config-download-list-json= ${{ inputs.step-copy-platform-config-download-list-json }}"
-          echo "step-setup-node-version= ${{ inputs.step-setup-node-version }}"
-          echo "step-npm-install-command= ${{ inputs.step-npm-install-command }}"
-          echo "step-npm-run-test-command= ${{ inputs.step-npm-run-test-command }}"
-          echo "step-run-integration-test-in-docker-command= ${{ inputs.step-run-integration-test-in-docker-command }}"
+          echo 'inputs:'
+          echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
       - name: Notify Teams

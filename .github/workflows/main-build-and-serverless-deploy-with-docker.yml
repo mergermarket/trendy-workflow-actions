@@ -125,21 +125,8 @@ jobs:
     steps:
       - name: Print input paramters
         run: |
-          echo "allow-to-skip= ${{ inputs.allow-to-skip }}"
-          echo "text-to-find-in-commit-to-skip= ${{ inputs.text-to-find-in-commit-to-skip }}"
-          echo "do-step-notify-teams-on-build-exit= ${{ inputs.do-step-notify-teams-on-build-exit }}"
-          echo "do-step-copy-platform-config= ${{ inputs.do-step-copy-platform-config }}"
-          echo "do-step-create-npmrc= ${{ inputs.do-step-create-npmrc }}"
-          echo "do-step-setup-node= ${{ inputs.do-step-setup-node }}"
-          echo "do-step-npm-install= ${{ inputs.do-step-npm-install }}"
-          echo "do-step-npm-run-test= ${{ inputs.do-step-npm-run-test }}"
-          echo "do-step-run-integration-test-in-docker= ${{ inputs.do-step-run-integration-test-in-docker }}"
-          echo "step-copy-platform-config-setup-json= ${{ inputs.step-copy-platform-config-setup-json }}"
-          echo "step-configure-aws-region= ${{ inputs.step-configure-aws-region }}"
-          echo "step-setup-node-version= ${{ inputs.step-setup-node-version }}"
-          echo "step-npm-install-command= ${{ inputs.step-npm-install-command }}"
-          echo "step-npm-run-test-command= ${{ inputs.step-npm-run-test-command }}"
-          echo "step-run-integration-test-in-docker-command= ${{ inputs.step-run-integration-test-in-docker-command }}"
+          echo 'inputs:'
+          echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
       - name: Notify Teams

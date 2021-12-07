@@ -66,15 +66,8 @@ jobs:
     steps:
       - name: Print input paramters
         run: |
-          echo "do-branch-filtering-before-start= ${{ inputs.do-branch-filtering-before-start }}"
-          echo "do-step-notify-teams-on-failure= ${{ inputs.do-step-notify-teams-on-failure }}"
-          echo "do-step-copy-platform-config= ${{ inputs.do-step-copy-platform-config }}"
-          echo "do-step-create-npmrc= ${{ inputs.do-step-create-npmrc }}"
-          echo "step-notify-teams-job-name= ${{ inputs.step-notify-teams-job-name }}"
-          echo "branch-name-for-branch-filtering-before-start= ${{ inputs.branch-name-for-branch-filtering-before-start }}"
-          echo "step-copy-platform-config-setup-json= ${{ inputs.step-copy-platform-config-setup-json }}"
-          echo "step-configure-aws-region= ${{ inputs.step-configure-aws-region }}"
-          echo "step-run-deployment-in-docker-command= ${{ inputs.step-run-deployment-in-docker-command }}"
+          echo 'inputs:'
+          echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
       - name: Notify Teams
