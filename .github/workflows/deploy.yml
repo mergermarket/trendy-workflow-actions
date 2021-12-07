@@ -7,6 +7,10 @@ on:
         required: false
         default: true
         type: boolean
+      notify-teams-environment-name:
+        required: false
+        default: "environment"
+        type: string     
       notify-teams-on-failure:
         required: false
         default: true
@@ -111,8 +115,8 @@ jobs:
           show-on-start: false
           show-on-failure: true
           custom-facts: |
-            - name: Job Name
-              value: 'Deployment - ${{ github.job }}'
+            - name: Deployment Environment
+              value: '${{ github.notify-teams-environment-name }}'
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
