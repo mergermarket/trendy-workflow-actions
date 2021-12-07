@@ -15,9 +15,24 @@ jobs:
     steps:
       - name: Print input paramters
         run: |
+          echo '******************************github'
           echo '${{toJSON(github)}}'
+          echo '******************************env'
+          echo '${{toJSON(env)}}'
+          echo '******************************job'
           echo '${{toJSON(job)}}'
-          echo '${{toJSON(github.job)}}'
+          echo '******************************steps'
+          echo '${{toJSON(steps)}}'
+          echo '******************************runner'
+          echo '${{toJSON(runner)}}'
+          echo '******************************strategy'
+          echo '${{toJSON(strategy)}}'
+          echo '******************************matrix'
+          echo '${{toJSON(matrix)}}'
+          echo '******************************needs'
+          echo '${{toJSON(needs)}}'
+          echo '******************************inputs'
+          echo '${{toJSON(inputs)}}'
       - name: Notify Teams
         uses: toko-bifrost/ms-teams-deploy-card@3.1.2
         with:

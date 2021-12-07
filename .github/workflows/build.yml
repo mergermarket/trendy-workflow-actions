@@ -89,6 +89,8 @@ jobs:
     steps:
       - name: Print input paramters
         run: |
+          echo 'inputs:'
+          echo '${{toJSON(inputs)}}'
           echo "branch-filtering-before-deployment= ${{ inputs.branch-filtering-before-deployment }}"
           echo "branch-name-for-filtering-deployment= ${{ inputs.branch-name-for-filtering-deployment }}"
           echo "allow-to-skip-build= ${{ inputs.allow-to-skip-build }}"
