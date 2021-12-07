@@ -34,7 +34,7 @@ jobs:
           echo '******************************inputs'
           echo '${{toJSON(inputs)}}'
       - name: Notify Teams
-        uses: patrickpaulin/ms-teams-deploy-card@main
+        uses: patrickpaulin/ms-teams-deploy-card@master
         with:
           github-token: ${{ github.token }}
           webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}

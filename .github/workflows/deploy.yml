@@ -94,7 +94,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v2
       - name: Notify Teams
-        uses: patrickpaulin/ms-teams-deploy-card@main
+        uses: patrickpaulin/ms-teams-deploy-card@master
         if: ${{ inputs.notify-teams-on-failure }}
         with:
           github-token: ${{ github.token }} # Use built-in more restricted token
