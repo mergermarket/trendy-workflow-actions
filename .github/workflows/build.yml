@@ -3,14 +3,6 @@ name: trendy-workflow-actions/build
 on:
   workflow_call:
     inputs:
-      branch-filtering-before-deployment:
-        required: false
-        default: true
-        type: boolean
-      branch-name-for-filtering-deployment:
-        required: false
-        default: "refs/heads/main"
-        type: string
       allow-to-skip-build:
         required: false
         default: false
