@@ -1,0 +1,31 @@
+name: trendy-workflow-actions/msteams-test
+
+on:
+  workflow_call:
+    secrets:
+      MSTEAMS_WEBHOOK:
+        required: true
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read    
+    steps:
+      - name: Print input paramters
+        run: |
+          echo '${{toJSON(github)}}'
+          echo '${{toJSON(job)}}'
+          echo '${{toJSON(github.job)}}'
+      - name: Notify Teams
+        uses: toko-bifrost/ms-teams-deploy-card@3.1.2
+        with:
+          github-token: ${{ github.token }}
+          webhook-uri: ${{ secrets.MSTEAMS_WEBHOOK }}
+          card-layout-exit: complete
+          show-on-start: false
+          custom-facts: |
+            - name: Job Name
+              value: Build
+      
