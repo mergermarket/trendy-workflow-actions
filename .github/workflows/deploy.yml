@@ -18,15 +18,7 @@ on:
       branch-name-for-filtering-deployment:
         required: false
         default: "refs/heads/main"
-        type: string
-      allow-to-skip-build:
-        required: false
-        default: false
-        type: boolean
-      text-to-find-in-commit-to-skip-build:
-        required: false
-        default: "[skip ci]"
-        type: string      
+        type: string   
       copy-platform-config:
         required: false
         default: true
@@ -36,10 +28,6 @@ on:
         default: true
         type: boolean
       setup-node:
-        required: false
-        default: true
-        type: boolean
-      npm-install:
         required: false
         default: true
         type: boolean
