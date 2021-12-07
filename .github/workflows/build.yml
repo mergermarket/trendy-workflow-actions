@@ -139,6 +139,10 @@ jobs:
           COMMAND_STR=""
           echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
             COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "run: $COMMAND_STR";
+            echo "********************************************";
+            echo "*              runing command              *";
+            echo "********************************************";
+            echo "$COMMAND_STR";
+            echo "********************************************";
             eval $COMMAND_STR  
           done
