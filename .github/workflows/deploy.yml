@@ -145,11 +145,11 @@ jobs:
           COMMAND_STR=""
           echo $BEFORE_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
             COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "********************************************";
-            echo "*              runing command              *";
-            echo "********************************************";
+            echo "*********************************************";
+            echo "*              running command              *";
+            echo "*********************************************";
             echo "$COMMAND_STR";
-            echo "********************************************";
+            echo "*********************************************";
             eval $COMMAND_STR  
           done
       - name: Run deployment commands
@@ -159,11 +159,11 @@ jobs:
           COMMAND_STR=""
           echo $DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
             COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "********************************************";
-            echo "*              runing command              *";
-            echo "********************************************";
+            echo "*********************************************";
+            echo "*              running command              *";
+            echo "*********************************************";
             echo "$COMMAND_STR";
-            echo "********************************************";
+            echo "*********************************************";
             eval $COMMAND_STR  
           done
       - name: Run after-deployment commands
@@ -173,10 +173,10 @@ jobs:
           COMMAND_STR=""
           echo $AFTER_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
             COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "********************************************";
-            echo "*              runing command              *";
-            echo "********************************************";
+            echo "*********************************************";
+            echo "*              running command              *";
+            echo "*********************************************";
             echo "$COMMAND_STR";
-            echo "********************************************";
+            echo "*********************************************";
             eval $COMMAND_STR  
           done
