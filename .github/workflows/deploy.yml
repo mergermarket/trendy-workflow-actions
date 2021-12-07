@@ -116,7 +116,7 @@ jobs:
           show-on-failure: true
           custom-facts: |
             - name: Deployment Environment
-              value: '${{ github.notify-teams-environment-name }}'
+              value: '${{ inputs.notify-teams-environment-name }}'
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
