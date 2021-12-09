@@ -27,10 +27,6 @@ on:
         required: false
         default: true
         type: boolean
-      npm-install:
-        required: false
-        default: true
-        type: boolean
       configure-aws-region:
         required: false
         default: "eu-west-1"
@@ -130,7 +126,6 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Run build commands
-        if: ${{ inputs.npm-install }}
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
