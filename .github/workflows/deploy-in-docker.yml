@@ -60,7 +60,7 @@ jobs:
       contents: read
     env:
       JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
-      VERSION: ${{ github.sha }}
+      VERSION: ${{ github.run_number }}-${{ github.sha }}
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.do-branch-filtering-before-start || github.ref == inputs.branch-name-for-branch-filtering-before-start }}
     steps:

@@ -74,8 +74,8 @@ jobs:
       actions: read
       contents: read
     env:
-      JOB_NAME: ${{ github.workflow }}-${{ github.run_number }}-${{ github.sha }}
-      VERSION: ${{ github.sha }}
+      JOB_NAME: 'build-${{ github.run_number }}-${{ github.sha }}'
+      VERSION: ${{ github.run_number }}-${{ github.sha }}
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
