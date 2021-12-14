@@ -139,6 +139,8 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Run before-deployment commands
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
           BEFORE_DEPLOY_COMMANDS_JSON='${{ inputs.before-deploy-commands-json }}'
@@ -153,6 +155,8 @@ jobs:
             eval $COMMAND_STR  
           done
       - name: Run deployment commands
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
           DEPLOY_COMMANDS_JSON='${{ inputs.deploy-commands-json }}'
@@ -167,6 +171,8 @@ jobs:
             eval $COMMAND_STR  
           done
       - name: Run after-deployment commands
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
           AFTER_DEPLOY_COMMANDS_JSON='${{ inputs.after-deploy-commands-json }}'
