@@ -60,8 +60,6 @@ on:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   Build:
