@@ -3,6 +3,10 @@ name: trendy-workflow-actions/build
 on:
   workflow_call:
     inputs:
+      runs-on:
+        required: false
+        default: "ubuntu-latest"
+        type: string 
       allow-to-skip-build:
         required: false
         default: false
@@ -71,7 +75,7 @@ on:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     permissions:
       actions: read
       contents: read
