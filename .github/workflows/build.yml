@@ -47,7 +47,15 @@ on:
         required: false
         default: 14
         type: number
+      pre-build-commands-json:
+        required: false
+        default: '[]'
+        type: string
       build-commands-json:
+        required: false
+        default: '[]'
+        type: string
+      post-build-commands-json:
         required: false
         default: '[]'
         type: string
@@ -123,12 +131,50 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
+      - name: Run pre-build commands
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: |
+          set -e
+          BUILD_COMMANDS_JSON='${{ inputs.pre-build-commands-json }}'
+          COMMAND_STR=""
+          echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "*********************************************";
+            echo "*              running command              *";
+            echo "*********************************************";
+            echo "$COMMAND_STR";
+            echo "*********************************************";
+            eval $COMMAND_STR  
+            echo "*********************************************";
+            echo "exit code: $?";
+            echo "*********************************************";
+          done
       - name: Run build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.build-commands-json }}'
+          COMMAND_STR=""
+          echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+            echo "*********************************************";
+            echo "*              running command              *";
+            echo "*********************************************";
+            echo "$COMMAND_STR";
+            echo "*********************************************";
+            eval $COMMAND_STR  
+            echo "*********************************************";
+            echo "exit code: $?";
+            echo "*********************************************";
+          done
+      - name: Run post-build commands
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: |
+          set -e
+          BUILD_COMMANDS_JSON='${{ inputs.post-build-commands-json }}'
           COMMAND_STR=""
           echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
             COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
