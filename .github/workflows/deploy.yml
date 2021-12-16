@@ -145,6 +145,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, install it"
+            CMD_JQ=/usr/bin/jq
+            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
+            ls -la $CMD_JQ            
+          fi
           BEFORE_DEPLOY_COMMANDS_JSON='${{ inputs.before-deploy-commands-json }}'
           COMMAND_STR=""
           echo $BEFORE_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
@@ -161,6 +168,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, install it"
+            CMD_JQ=/usr/bin/jq
+            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
+            ls -la $CMD_JQ            
+          fi
           DEPLOY_COMMANDS_JSON='${{ inputs.deploy-commands-json }}'
           COMMAND_STR=""
           echo $DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
@@ -177,6 +191,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, install it"
+            CMD_JQ=/usr/bin/jq
+            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
+            ls -la $CMD_JQ            
+          fi
           AFTER_DEPLOY_COMMANDS_JSON='${{ inputs.after-deploy-commands-json }}'
           COMMAND_STR=""
           echo $AFTER_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
