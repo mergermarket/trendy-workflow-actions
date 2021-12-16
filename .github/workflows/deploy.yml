@@ -140,7 +140,7 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
-      - name: Install missing commands 
+      - name: Install missing commands (self-hosted agents may need this)
         run : |
           echo "===== check: docker-compose ====="
           if ! command -v docker-compose &> /dev/null
