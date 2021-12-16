@@ -140,18 +140,35 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
+      - name: Install missing commands 
+        run : |
+          echo "===== check: docker-compose ====="
+          if ! command -v docker-compose &> /dev/null
+          then
+            echo "install: docker-compose"
+            #latest
+            #curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
+            #1.22.0
+            curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose            
+            chmod +x /usr/bin/docker-compose
+          fi         
+          docker-compose -version
+          echo "==========" 
+          echo "===== check: jq ====="
+          if ! command -v jq &> /dev/null
+          then
+            echo "install: jq"
+            CMD_JQ=/usr/bin/jq
+            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
+            ls -la $CMD_JQ            
+          fi
+          jq --version
+          echo "==========" 
       - name: Run before-deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
-          if ! command -v jq &> /dev/null
-          then
-            echo "jq not found, install it"
-            CMD_JQ=/usr/bin/jq
-            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
-            ls -la $CMD_JQ            
-          fi
           BEFORE_DEPLOY_COMMANDS_JSON='${{ inputs.before-deploy-commands-json }}'
           COMMAND_STR=""
           echo $BEFORE_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
@@ -168,13 +185,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
-          if ! command -v jq &> /dev/null
-          then
-            echo "jq not found, install it"
-            CMD_JQ=/usr/bin/jq
-            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
-            ls -la $CMD_JQ            
-          fi
           DEPLOY_COMMANDS_JSON='${{ inputs.deploy-commands-json }}'
           COMMAND_STR=""
           echo $DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
@@ -191,13 +201,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           set -e
-          if ! command -v jq &> /dev/null
-          then
-            echo "jq not found, install it"
-            CMD_JQ=/usr/bin/jq
-            curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
-            ls -la $CMD_JQ            
-          fi
           AFTER_DEPLOY_COMMANDS_JSON='${{ inputs.after-deploy-commands-json }}'
           COMMAND_STR=""
           echo $AFTER_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
