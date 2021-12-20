@@ -76,6 +76,10 @@ on:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
+      MONGODB_ATLAS_PUBLIC_KEY:
+        required: false
+      MONGODB_ATLAS_PRIVATE_KEY:
+        required: false
 
 jobs:
   Deploy:
@@ -86,7 +90,9 @@ jobs:
     env:
       JOB_NAME: 'deploy-${{ github.run_number }}-${{ github.sha }}'
       VERSION: ${{ github.run_number }}-${{ github.sha }}
-      GITHUB_TOKEN: dummy-token    
+      GITHUB_TOKEN: dummy-token
+      MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}    
+      MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}    
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
     steps:
       - name: Print input paramters
