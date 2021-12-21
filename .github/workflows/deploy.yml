@@ -155,6 +155,7 @@ jobs:
             curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose            
             chmod +x /usr/bin/docker-compose
           fi         
+          echo "run: docker-compose -version"
           docker-compose -version
           echo "==========" 
           echo "===== check: jq ====="
@@ -165,6 +166,7 @@ jobs:
             curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
             ls -la $CMD_JQ            
           fi
+          echo "run: jq --version"
           jq --version
           echo "==========" 
       - name: Run before-deployment commands
