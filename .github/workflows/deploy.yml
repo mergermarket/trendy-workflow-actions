@@ -155,8 +155,8 @@ jobs:
             curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose            
             chmod +x /usr/bin/docker-compose
           fi         
-          echo "run: docker-compose -version"
-          docker-compose -version
+          echo "run: docker-compose -v"
+          docker-compose -v
           echo "==========" 
           echo "===== check: jq ====="
           if ! command -v jq &> /dev/null
