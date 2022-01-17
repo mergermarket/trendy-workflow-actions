@@ -91,6 +91,7 @@ jobs:
       JOB_NAME: "deploy-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
       GITHUB_TOKEN: dummy-token
+      NPM_ACCESS_TOKEN: '${{ secrets.NPM_ACCESS_TOKEN }}'
       MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
       MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
