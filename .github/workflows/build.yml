@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Check out my other repo
         uses: actions/checkout@master
-        if: ${{ extra-repo-checkout }}
+        if: ${{ inputs.extra-repo-checkout }}
         with:
           repository: ${{ inputs.extra-repo-checkout-name }}
           token: $GITHUB_TOKEN
