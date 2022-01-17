@@ -106,7 +106,6 @@ jobs:
         if: ${{ inputs.extra-repo-checkout }}
         with:
           repository: ${{ inputs.extra-repo-checkout-name }}
-          token: $GITHUB_TOKEN
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@master
         if: ${{ inputs.notify-teams-on-build-exit }}
