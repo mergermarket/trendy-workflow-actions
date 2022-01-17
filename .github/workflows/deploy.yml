@@ -55,14 +55,6 @@ on:
         required: false
         default: 14
         type: number
-      extra-repo-checkout:
-        required: false
-        default: true
-        type: boolean
-      extra-repo-checkout-name:
-        required: false
-        default: "mergermarket/authentication-e2e-tests"
-        type: string
       before-deploy-commands-json:
         required: false
         default: "[]"
@@ -84,8 +76,6 @@ on:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
-      GITHUB_ACCESS_TOKEN:
-        required: false
       MONGODB_ATLAS_PUBLIC_KEY:
         required: false
       MONGODB_ATLAS_PRIVATE_KEY:
@@ -100,7 +90,7 @@ jobs:
     env:
       JOB_NAME: "deploy-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
-      GITHUB_TOKEN: '${{ secrets.GITHUB_ACCESS_TOKEN }}'
+      GITHUB_TOKEN: dummy-token
       MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
       MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
@@ -111,15 +101,6 @@ jobs:
           echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
-        with:
-          path: main
-      - name: Check out other repo
-        uses: actions/checkout@master
-        if: ${{ inputs.extra-repo-checkout }}
-        with:
-          path: extra-repo
-          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-          repository: ${{ inputs.extra-repo-checkout-name }}
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@master
         if: ${{ inputs.notify-teams-on-failure }}
