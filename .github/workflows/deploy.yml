@@ -6,7 +6,7 @@ on:
       runs-on:
         required: false
         default: "ubuntu-latest"
-        type: string  
+        type: string
       branch-filtering-before-deployment:
         required: false
         default: true
@@ -14,7 +14,7 @@ on:
       notify-teams-environment-name:
         required: false
         default: "environment"
-        type: string     
+        type: string
       notify-teams-on-failure:
         required: false
         default: true
@@ -22,7 +22,7 @@ on:
       branch-name-for-filtering-deployment:
         required: false
         default: "refs/heads/main"
-        type: string   
+        type: string
       copy-platform-config:
         required: false
         default: true
@@ -49,23 +49,31 @@ on:
         type: string
       copy-platform-config-download-list-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       setup-node-version:
         required: false
         default: 14
         type: number
+      extra-repo-checkout:
+        required: false
+        default: true
+        type: boolean
+      extra-repo-checkout-name:
+        required: false
+        default: "mergermarket/authentication-e2e-tests"
+        type: string
       before-deploy-commands-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       deploy-commands-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       after-deploy-commands-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
     secrets:
       MSTEAMS_WEBHOOK:
@@ -76,6 +84,8 @@ on:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
+      GITHUB_TOKEN:
+        required: false
       MONGODB_ATLAS_PUBLIC_KEY:
         required: false
       MONGODB_ATLAS_PRIVATE_KEY:
@@ -88,11 +98,11 @@ jobs:
       actions: read
       contents: read
     env:
-      JOB_NAME: 'deploy-${{ github.run_number }}-${{ github.sha }}'
+      JOB_NAME: "deploy-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
-      GITHUB_TOKEN: dummy-token
-      MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}    
-      MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}    
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
+      MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
     steps:
       - name: Print input paramters
@@ -101,6 +111,12 @@ jobs:
           echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
+      - name: Check out my other repo
+        uses: actions/checkout@master
+        if: ${{ extra-repo-checkout }}
+        with:
+          repository: ${{ inputs.extra-repo-checkout-name }}
+          token: $GITHUB_TOKEN
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@master
         if: ${{ inputs.notify-teams-on-failure }}
@@ -147,7 +163,7 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Install missing commands (self-hosted agents may need this)
-        run : |
+        run: |
           echo "===== check: docker-compose ====="
           if ! command -v docker-compose &> /dev/null
           then
@@ -168,7 +184,7 @@ jobs:
           fi
           echo "run: jq --version"
           jq --version
-          echo "==========" 
+          echo "=========="
       - name: Run before-deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

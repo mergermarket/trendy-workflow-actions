@@ -31,6 +31,14 @@ on:
         required: false
         default: true
         type: boolean
+      extra-repo-checkout:
+        required: false
+        default: true
+        type: boolean
+      extra-repo-checkout-name:
+        required: false
+        default: "mergermarket/authentication-e2e-tests"
+        type: string
       configure-aws-region:
         required: false
         default: "eu-west-1"
@@ -72,6 +80,8 @@ on:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
+      GITHUB_TOKEN:
+        required: false
 
 jobs:
   Build:
@@ -82,7 +92,7 @@ jobs:
     env:
       JOB_NAME: 'build-${{ github.run_number }}-${{ github.sha }}'
       VERSION: ${{ github.run_number }}-${{ github.sha }}
-      GITHUB_TOKEN: dummy-token
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
       - name: Print input paramters
@@ -91,6 +101,12 @@ jobs:
           echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
+      - name: Check out my other repo
+        uses: actions/checkout@master
+        if: ${{ extra-repo-checkout }}
+        with:
+          repository: ${{ inputs.extra-repo-checkout-name }}
+          token: $GITHUB_TOKEN
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@master
         if: ${{ inputs.notify-teams-on-build-exit }}
