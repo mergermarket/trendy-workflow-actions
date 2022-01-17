@@ -111,10 +111,14 @@ jobs:
           echo '${{toJSON(inputs)}}'
       - name: Checkout main branch
         uses: actions/checkout@v2
-      - name: Check out my other repo
+        with:
+          path: main
+      - name: Check out other repo
         uses: actions/checkout@master
         if: ${{ inputs.extra-repo-checkout }}
         with:
+          path: extra-repo
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           repository: ${{ inputs.extra-repo-checkout-name }}
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@master
