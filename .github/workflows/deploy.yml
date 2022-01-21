@@ -185,6 +185,9 @@ jobs:
             echo "$COMMAND_STR";
             echo "*********************************************";
             eval $COMMAND_STR  
+            echo "*********************************************";
+            echo "exit code: $?";
+            echo "*********************************************";  
           done
       - name: Run deployment commands
         env:
@@ -201,6 +204,9 @@ jobs:
             echo "$COMMAND_STR";
             echo "*********************************************";
             eval $COMMAND_STR  
+            echo "*********************************************";
+            echo "exit code: $?";
+            echo "*********************************************";  
           done
       - name: Run after-deployment commands
         env:
@@ -217,4 +223,7 @@ jobs:
             echo "$COMMAND_STR";
             echo "*********************************************";
             eval $COMMAND_STR  
+            echo "*********************************************";
+            echo "exit code: $?";
+            echo "*********************************************";  
           done
