@@ -177,18 +177,22 @@ jobs:
           set -e
           BEFORE_DEPLOY_COMMANDS_JSON='${{ inputs.before-deploy-commands-json }}'
           COMMAND_STR=""
-          echo $BEFORE_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
-            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "*********************************************";
-            echo "*              running command              *";
-            echo "*********************************************";
-            echo "$COMMAND_STR";
-            echo "*********************************************";
-            eval $COMMAND_STR  
-            echo "*********************************************";
-            echo "exit code: $?";
-            echo "*********************************************";  
-          done
+          if echo $BEFORE_DEPLOY_COMMANDS_JSON | jq . ; then
+            echo $BEFORE_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+              echo "*********************************************";
+              echo "*              running command              *";
+              echo "*********************************************";
+              echo "$COMMAND_STR";
+              echo "*********************************************";
+              eval $COMMAND_STR  
+              echo "*********************************************";
+              echo "exit code: $?";
+              echo "*********************************************";  
+            done
+          else
+            echo "before-deploy-commands-json is not valid!"
+          fi
       - name: Run deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
@@ -196,18 +200,22 @@ jobs:
           set -e
           DEPLOY_COMMANDS_JSON='${{ inputs.deploy-commands-json }}'
           COMMAND_STR=""
-          echo $DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
-            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "*********************************************";
-            echo "*              running command              *";
-            echo "*********************************************";
-            echo "$COMMAND_STR";
-            echo "*********************************************";
-            eval $COMMAND_STR  
-            echo "*********************************************";
-            echo "exit code: $?";
-            echo "*********************************************";  
-          done
+          if echo $DEPLOY_COMMANDS_JSON | jq . ; then
+            echo $DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+              echo "*********************************************";
+              echo "*              running command              *";
+              echo "*********************************************";
+              echo "$COMMAND_STR";
+              echo "*********************************************";
+              eval $COMMAND_STR  
+              echo "*********************************************";
+              echo "exit code: $?";
+              echo "*********************************************";  
+            done
+          else
+            echo "deploy-commands-json is not valid!"
+          fi
       - name: Run after-deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
@@ -215,15 +223,19 @@ jobs:
           set -e
           AFTER_DEPLOY_COMMANDS_JSON='${{ inputs.after-deploy-commands-json }}'
           COMMAND_STR=""
-          echo $AFTER_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
-            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "*********************************************";
-            echo "*              running command              *";
-            echo "*********************************************";
-            echo "$COMMAND_STR";
-            echo "*********************************************";
-            eval $COMMAND_STR  
-            echo "*********************************************";
-            echo "exit code: $?";
-            echo "*********************************************";  
-          done
+          if echo $AFTER_DEPLOY_COMMANDS_JSON | jq . ; then
+            echo $AFTER_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+              echo "*********************************************";
+              echo "*              running command              *";
+              echo "*********************************************";
+              echo "$COMMAND_STR";
+              echo "*********************************************";
+              eval $COMMAND_STR  
+              echo "*********************************************";
+              echo "exit code: $?";
+              echo "*********************************************";  
+            done
+          else
+            echo "after-deploy-commands-json is not valid!"
+          fi

@@ -164,18 +164,22 @@ jobs:
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.pre-build-commands-json }}'
           COMMAND_STR=""
-          echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
-            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "*********************************************";
-            echo "*              running command              *";
-            echo "*********************************************";
-            echo "$COMMAND_STR";
-            echo "*********************************************";
-            eval $COMMAND_STR  
-            echo "*********************************************";
-            echo "exit code: $?";
-            echo "*********************************************";
-          done
+          if echo $BUILD_COMMANDS_JSON | jq . ; then
+            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+              echo "*********************************************";
+              echo "*              running command              *";
+              echo "*********************************************";
+              echo "$COMMAND_STR";
+              echo "*********************************************";
+              eval $COMMAND_STR  
+              echo "*********************************************";
+              echo "exit code: $?";
+              echo "*********************************************";
+            done
+          else
+            echo "pre-build-commands-json is not valid!"
+          fi
       - name: Run build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
@@ -183,18 +187,22 @@ jobs:
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.build-commands-json }}'
           COMMAND_STR=""
-          echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
-            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "*********************************************";
-            echo "*              running command              *";
-            echo "*********************************************";
-            echo "$COMMAND_STR";
-            echo "*********************************************";
-            eval $COMMAND_STR  
-            echo "*********************************************";
-            echo "exit code: $?";
-            echo "*********************************************";
-          done
+          if echo $BUILD_COMMANDS_JSON | jq . ; then
+            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+              echo "*********************************************";
+              echo "*              running command              *";
+              echo "*********************************************";
+              echo "$COMMAND_STR";
+              echo "*********************************************";
+              eval $COMMAND_STR  
+              echo "*********************************************";
+              echo "exit code: $?";
+              echo "*********************************************";
+            done
+          else
+            echo "build-commands-json is not valid!"
+          fi
       - name: Run post-build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
@@ -202,15 +210,19 @@ jobs:
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.post-build-commands-json }}'
           COMMAND_STR=""
-          echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
-            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-            echo "*********************************************";
-            echo "*              running command              *";
-            echo "*********************************************";
-            echo "$COMMAND_STR";
-            echo "*********************************************";
-            eval $COMMAND_STR  
-            echo "*********************************************";
-            echo "exit code: $?";
-            echo "*********************************************";
-          done
+          if echo $BUILD_COMMANDS_JSON | jq . ; then
+            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
+              echo "*********************************************";
+              echo "*              running command              *";
+              echo "*********************************************";
+              echo "$COMMAND_STR";
+              echo "*********************************************";
+              eval $COMMAND_STR  
+              echo "*********************************************";
+              echo "exit code: $?";
+              echo "*********************************************";
+            done
+          else
+            echo "post-build-commands-json is not valid!"
+          fi
