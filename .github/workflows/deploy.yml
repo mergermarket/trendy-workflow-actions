@@ -3,10 +3,6 @@ name: trendy-workflow-actions/build
 on:
   workflow_call:
     inputs:
-      runs-on:
-        required: false
-        default: "ubuntu-latest"
-        type: string
       branch-filtering-before-deployment:
         required: false
         default: true
@@ -83,7 +79,6 @@ on:
 
 jobs:
   Deploy:
-    runs-on: ${{ inputs.runs-on }}
     permissions:
       actions: read
       contents: read
