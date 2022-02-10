@@ -7,6 +7,14 @@ on:
         required: false
         default: "ubuntu-latest"
         type: string
+      runs-on-extra-tag1:
+        required: false
+        default: "ubuntu-latest"
+        type: string
+      runs-on-extra-tag2:
+        required: false
+        default: "ubuntu-latest"
+        type: string
       branch-filtering-before-deployment:
         required: false
         default: true
@@ -83,7 +91,7 @@ on:
 
 jobs:
   Deploy:
-    runs-on: ${{ inputs.runs-on }}
+    runs-on: [ "${{ inputs.runs-on }}", "${{ inputs.runs-on-extra-tag1 }}", "${{ inputs.runs-on-extra-tag2 }}" ]
     permissions:
       actions: read
       contents: read
