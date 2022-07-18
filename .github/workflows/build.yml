@@ -35,6 +35,10 @@ on:
         required: false
         default: true
         type: boolean
+      create-jfrog-npmrc:
+        required: false
+        default: false
+        type: boolean        
       setup-node:
         required: false
         default: true
@@ -80,6 +84,8 @@ on:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
+      NPM_JFROG_TOKEN:
+        required: false
 
 jobs:
   Build:
@@ -158,7 +164,14 @@ jobs:
         run: |
           echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
-          echo "registry=https://registry.npmjs.org" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc      
+      - name: Create JFROG .npmrc
+        if: ${{ inputs.create-jfrog-npmrc }}
+        run: |
+          echo "registry=https://mmrepo.jfrog.io/mmrepo/api/npm/npm-virtual/" >> .npmrc
+          echo "username = jenkins-read-only" >> .npmrc
+          echo "_password = ${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
+          echo "always-auth = true" >> .npmrc          
       - name: Setup Node.js
         uses: actions/setup-node@v2
         if: ${{ inputs.setup-node }}
