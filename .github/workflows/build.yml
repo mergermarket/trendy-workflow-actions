@@ -169,8 +169,9 @@ jobs:
         if: ${{ inputs.create-jfrog-npmrc }}
         run: |
           echo "registry=https://mmrepo.jfrog.io/mmrepo/api/npm/npm-virtual/" >> .npmrc
-          echo "_authToken=${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
-          echo "always-auth = true" >> .npmrc
+          echo "username = jenkins-read-only" >> .npmrc
+          echo "_password = ${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
+          echo "always-auth = true" >> .npmrc          
       - name: Setup Node.js
         uses: actions/setup-node@v2
         if: ${{ inputs.setup-node }}
