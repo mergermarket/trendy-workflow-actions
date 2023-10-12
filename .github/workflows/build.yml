@@ -38,6 +38,10 @@ on:
       create-jfrog-npmrc:
         required: false
         default: false
+        type: boolean
+      create-ion-analytics-npmrc:
+        required: false
+        default: false
         type: boolean        
       setup-node:
         required: false
@@ -163,6 +167,12 @@ jobs:
         if: ${{ inputs.create-npmrc }}
         run: |
           echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc
+      - name: Create ION Analytics .npmrc
+        if: ${{ inputs.create-ion-analytics-npmrc }}
+        run: |
+          echo "@ion-analytics:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
           echo "registry=https://registry.npmjs.org" >> .npmrc      
       - name: Create JFROG .npmrc
