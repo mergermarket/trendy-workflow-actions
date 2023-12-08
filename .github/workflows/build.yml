@@ -79,6 +79,10 @@ on:
         required: false
         default: '[]'
         type: string
+      login-to-docker:
+        required: false
+        default: true
+        type: boolean
     secrets:
       MSTEAMS_WEBHOOK:
         required: true
@@ -149,6 +153,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.configure-aws-region }}
       - name: Login to Docker
+        if: ${{ inputs.login-to-docker }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
