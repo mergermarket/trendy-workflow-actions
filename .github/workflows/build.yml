@@ -94,6 +94,10 @@ on:
         required: true
       NPM_JFROG_TOKEN:
         required: false
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
 
 jobs:
   Build:
