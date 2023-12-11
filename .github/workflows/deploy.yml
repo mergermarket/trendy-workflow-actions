@@ -218,6 +218,8 @@ jobs:
       - name: Run before-deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKERHUB_USER }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
           set -e
           BEFORE_DEPLOY_COMMANDS_JSON='${{ inputs.before-deploy-commands-json }}'
@@ -241,6 +243,8 @@ jobs:
       - name: Run deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKERHUB_USER }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
           set -e
           DEPLOY_COMMANDS_JSON='${{ inputs.deploy-commands-json }}'
@@ -264,6 +268,8 @@ jobs:
       - name: Run after-deployment commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKERHUB_USER }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
           set -e
           AFTER_DEPLOY_COMMANDS_JSON='${{ inputs.after-deploy-commands-json }}'
