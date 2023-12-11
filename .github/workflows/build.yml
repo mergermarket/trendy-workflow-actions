@@ -205,6 +205,8 @@ jobs:
       - name: Run pre-build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKERHUB_USER }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.pre-build-commands-json }}'
@@ -228,6 +230,8 @@ jobs:
       - name: Run build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKERHUB_USER }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.build-commands-json }}'
@@ -251,6 +255,8 @@ jobs:
       - name: Run post-build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKERHUB_USER }}
+          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
           set -e
           BUILD_COMMANDS_JSON='${{ inputs.post-build-commands-json }}'
