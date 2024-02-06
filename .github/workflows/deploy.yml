@@ -150,7 +150,7 @@ jobs:
           jq --version
           echo "=========="
       - name: Checkout main branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Notify Teams
         uses: patrickpaulin/ms-teams-deploy-card@master
         if: ${{ inputs.notify-teams-on-failure }}
@@ -164,7 +164,7 @@ jobs:
             - name: Deployment Environment
               value: '${{ inputs.notify-teams-environment-name }}'
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -210,7 +210,7 @@ jobs:
           echo "_password = ${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
           echo "always-auth = true" >> .npmrc          
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         if: ${{ inputs.setup-node }}
         with:
           node-version: ${{ inputs.setup-node-version }}
