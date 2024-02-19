@@ -6,7 +6,7 @@ on:
       runs-on:
         required: false
         default: "ubuntu-latest"
-        type: string
+        type: string 
       runs-on-extra-tag1:
         required: false
         default: "ubuntu-latest"
@@ -42,7 +42,7 @@ on:
       create-ion-analytics-npmrc:
         required: false
         default: false
-        type: boolean
+        type: boolean        
       setup-node:
         required: false
         default: true
@@ -121,30 +121,19 @@ jobs:
           echo "===== check: docker-compose ====="
           if ! command -v docker-compose &> /dev/null
           then
-            echo "install: docker-compose"
-            curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
+            echo "install: docker-compose"            
+            curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose            
             chmod +x /usr/bin/docker-compose
-          fi
+          fi         
           docker-compose -version
-          echo "=========="
-          echo "===== check: docker compose ====="
-          if ! command -v docker compose &> /dev/null
-          then
-              echo "install: docker compose"
-              mkdir -p ~/.docker/cli-plugins
-              curl -SL https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m) -o ~/.docker/cli-plugins/docker-compose
-              chmod +x ~/.docker/cli-plugins/docker-compose
-          fi
-          echo "run: docker compose version"
-              docker compose version
-          echo "=========="
+          echo "==========" 
           echo "===== check: jq ====="
           if ! command -v jq &> /dev/null
           then
             echo "install: jq"
             CMD_JQ=/usr/bin/jq
             curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
-            ls -la $CMD_JQ
+            ls -la $CMD_JQ            
           fi
           jq --version
           echo "=========="
@@ -180,8 +169,8 @@ jobs:
           COPY_PLATFORM_CONFIG_INPUT_SRC=""
           COPY_PLATFORM_CONFIG_INPUT_DEST=""
           ACCOUNT_ITEM_STR=""
-          for accountItem in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .[]);
-          do
+          for accountItem in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .[]); 
+          do 
             ACCOUNT_ITEM_STR=$(echo $accountItem | sed -e 's/^"//' -e 's/"$//')
             COPY_PLATFORM_CONFIG_INPUT_SRC="${{inputs.copy-platform-config-src-bucket-prefix}}/$ACCOUNT_ITEM_STR/";
             COPY_PLATFORM_CONFIG_INPUT_DEST="${{inputs.copy-platform-config-dest-path-prefix}}/$ACCOUNT_ITEM_STR";
@@ -199,20 +188,20 @@ jobs:
         run: |
           echo "@ion-analytics:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
-          echo "registry=https://registry.npmjs.org" >> .npmrc
+          echo "registry=https://registry.npmjs.org" >> .npmrc      
       - name: Create JFROG .npmrc
         if: ${{ inputs.create-jfrog-npmrc }}
         run: |
           echo "registry=https://mmrepo.jfrog.io/mmrepo/api/npm/npm-virtual/" >> .npmrc
           echo "username = jenkins-read-only" >> .npmrc
           echo "_password = ${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
-          echo "always-auth = true" >> .npmrc
+          echo "always-auth = true" >> .npmrc          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         if: ${{ inputs.setup-node }}
         with:
           node-version: ${{ inputs.setup-node-version }}
-          cache: npm
+          cache: npm       
       - name: Run pre-build commands
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
@@ -223,14 +212,14 @@ jobs:
           BUILD_COMMANDS_JSON='${{ inputs.pre-build-commands-json }}'
           COMMAND_STR=""
           if echo $BUILD_COMMANDS_JSON | jq . ; then
-            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do
-              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')
+            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
               echo "*********************************************";
               echo "*              running command              *";
               echo "*********************************************";
               echo "$COMMAND_STR";
               echo "*********************************************";
-              eval $COMMAND_STR
+              eval $COMMAND_STR  
               echo "*********************************************";
               echo "exit code: $?";
               echo "*********************************************";
@@ -248,14 +237,14 @@ jobs:
           BUILD_COMMANDS_JSON='${{ inputs.build-commands-json }}'
           COMMAND_STR=""
           if echo $BUILD_COMMANDS_JSON | jq . ; then
-            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do
-              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')
+            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
               echo "*********************************************";
               echo "*              running command              *";
               echo "*********************************************";
               echo "$COMMAND_STR";
               echo "*********************************************";
-              eval $COMMAND_STR
+              eval $COMMAND_STR  
               echo "*********************************************";
               echo "exit code: $?";
               echo "*********************************************";
@@ -273,14 +262,14 @@ jobs:
           BUILD_COMMANDS_JSON='${{ inputs.post-build-commands-json }}'
           COMMAND_STR=""
           if echo $BUILD_COMMANDS_JSON | jq . ; then
-            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do
-              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')
+            echo $BUILD_COMMANDS_JSON | jq -c .[] | while read command; do 
+              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
               echo "*********************************************";
               echo "*              running command              *";
               echo "*********************************************";
               echo "$COMMAND_STR";
               echo "*********************************************";
-              eval $COMMAND_STR
+              eval $COMMAND_STR  
               echo "*********************************************";
               echo "exit code: $?";
               echo "*********************************************";
