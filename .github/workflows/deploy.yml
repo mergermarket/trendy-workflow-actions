@@ -97,7 +97,7 @@ on:
       NPM_ACCESS_TOKEN:
         required: true
       NPM_JFROG_TOKEN:
-        required: false        
+        required: false
       MONGODB_ATLAS_PUBLIC_KEY:
         required: false
       MONGODB_ATLAS_PRIVATE_KEY:
@@ -131,20 +131,20 @@ jobs:
           echo "===== check: docker-compose ====="
           if ! command -v docker-compose &> /dev/null
           then
-            echo "install: docker-compose"            
-            curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose            
+            echo "install: docker-compose"
+            curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
             chmod +x /usr/bin/docker-compose
-          fi         
+          fi
           echo "run: docker-compose -v"
           docker-compose -v
-          echo "==========" 
+          echo "=========="
           echo "===== check: jq ====="
           if ! command -v jq &> /dev/null
           then
             echo "install: jq"
             CMD_JQ=/usr/bin/jq
             curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
-            ls -la $CMD_JQ            
+            ls -la $CMD_JQ
           fi
           echo "run: jq --version"
           jq --version
@@ -174,7 +174,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}      
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Copy platform-config from s3
         if: ${{ inputs.copy-platform-config }}
         run: |
@@ -182,8 +182,8 @@ jobs:
           COPY_PLATFORM_CONFIG_INPUT_SRC=""
           COPY_PLATFORM_CONFIG_INPUT_DEST=""
           ACCOUNT_ITEM_STR=""
-          for accountItem in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .[]); 
-          do 
+          for accountItem in $(echo $COPY_PLATFORM_CONFIG_INPUT_JSON | jq -c .[]);
+          do
             ACCOUNT_ITEM_STR=$(echo $accountItem | sed -e 's/^"//' -e 's/"$//')
             COPY_PLATFORM_CONFIG_INPUT_SRC="${{inputs.copy-platform-config-src-bucket-prefix}}/$ACCOUNT_ITEM_STR/";
             COPY_PLATFORM_CONFIG_INPUT_DEST="${{inputs.copy-platform-config-dest-path-prefix}}/$ACCOUNT_ITEM_STR";
@@ -208,86 +208,19 @@ jobs:
           echo "registry=https://mmrepo.jfrog.io/mmrepo/api/npm/npm-virtual/" >> .npmrc
           echo "username = jenkins-read-only" >> .npmrc
           echo "_password = ${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
-          echo "always-auth = true" >> .npmrc          
+          echo "always-auth = true" >> .npmrc
       - name: Setup Node.js
         uses: actions/setup-node@v4
         if: ${{ inputs.setup-node }}
         with:
           node-version: ${{ inputs.setup-node-version }}
-          cache: npm      
-      - name: Run before-deployment commands
-        env:
-          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKER_USERNAME }}
-          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          set -e
-          BEFORE_DEPLOY_COMMANDS_JSON='${{ inputs.before-deploy-commands-json }}'
-          COMMAND_STR=""
-          if echo $BEFORE_DEPLOY_COMMANDS_JSON | jq . ; then
-            echo $BEFORE_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
-              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-              echo "*********************************************";
-              echo "*              running command              *";
-              echo "*********************************************";
-              echo "$COMMAND_STR";
-              echo "*********************************************";
-              eval $COMMAND_STR  
-              echo "*********************************************";
-              echo "exit code: $?";
-              echo "*********************************************";  
-            done
-          else
-            echo "before-deploy-commands-json is not valid!"
-          fi
-      - name: Run deployment commands
-        env:
-          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKER_USERNAME }}
-          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          set -e
-          DEPLOY_COMMANDS_JSON='${{ inputs.deploy-commands-json }}'
-          COMMAND_STR=""
-          if echo $DEPLOY_COMMANDS_JSON | jq . ; then
-            echo $DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
-              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-              echo "*********************************************";
-              echo "*              running command              *";
-              echo "*********************************************";
-              echo "$COMMAND_STR";
-              echo "*********************************************";
-              eval $COMMAND_STR  
-              echo "*********************************************";
-              echo "exit code: $?";
-              echo "*********************************************";  
-            done
-          else
-            echo "deploy-commands-json is not valid!"
-          fi
-      - name: Run after-deployment commands
-        env:
-          GITHUB_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ secrets.DOCKER_USERNAME }}
-          CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          set -e
-          AFTER_DEPLOY_COMMANDS_JSON='${{ inputs.after-deploy-commands-json }}'
-          COMMAND_STR=""
-          if echo $AFTER_DEPLOY_COMMANDS_JSON | jq . ; then
-            echo $AFTER_DEPLOY_COMMANDS_JSON | jq -c .[] | while read command; do 
-              COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')  
-              echo "*********************************************";
-              echo "*              running command              *";
-              echo "*********************************************";
-              echo "$COMMAND_STR";
-              echo "*********************************************";
-              eval $COMMAND_STR  
-              echo "*********************************************";
-              echo "exit code: $?";
-              echo "*********************************************";  
-            done
-          else
-            echo "after-deploy-commands-json is not valid!"
-          fi
-
+          cache: npm
+      - name: Run pre-build commands
+        uses: ${{ github.action_repository }}/.github/actions/run-all-commands@main
+        with:
+          github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
+          docker-username: ${{ secrets.DOCKER_USERNAME }}
+          docker-password: ${{ secrets.DOCKER_PASSWORD }}
+          pre-command-json: ${{ inputs.pre-build-command-json }}
+          command-json: ${{ inputs.build-command-json }}
+          post-command-json: ${{ inputs.post-build-command-json }}

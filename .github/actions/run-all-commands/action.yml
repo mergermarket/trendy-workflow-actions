@@ -1,0 +1,45 @@
+name: 'Run all commands'
+description: 'Runs all build commands'
+inputs:
+  docker-username:
+    description: 'docker username'
+    required: true
+  docker-password:
+    description: 'docker password'
+    required: true
+  github-token:
+    description: 'github token'
+    required: true
+  pre-command-json:
+    description: 'pre build command json'
+    required: true
+  command-json:
+    description: 'build command json'
+    required: true
+  post-command-json:
+    description: 'post build command json'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Run pre commands
+      uses: ${{ github.action_repository }}/.github/actions/run-commands@main
+      with:
+        github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
+        docker-username: ${{ secrets.DOCKER_USERNAME }}
+        docker-password: ${{ secrets.DOCKER_PASSWORD }}
+        build-command-json: ${{ inputs.pre-command-json }}
+    - name: Run commands
+      uses: ./.github/actions/run-commands
+      with:
+        github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
+        docker-username: ${{ secrets.DOCKER_USERNAME }}
+        docker-password: ${{ secrets.DOCKER_PASSWORD }}
+        build-command-json: ${{ inputs.command-json }}
+    - name: Run post commands
+      uses: ./.github/actions/run-commands
+      with:
+        github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
+        docker-username: ${{ secrets.DOCKER_USERNAME }}
+        docker-password: ${{ secrets.DOCKER_PASSWORD }}
+        build-command-json: ${{ inputs.post-command-json }}
