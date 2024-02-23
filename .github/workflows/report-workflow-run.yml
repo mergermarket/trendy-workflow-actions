@@ -1,0 +1,47 @@
+name: trendy-workflow-actions/report-workflow-run
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: false
+        default: "ubuntu-latest"
+        type: string
+      report-api-host:
+        required: false
+        default: "aslive-api.ionanalytics.com"
+        type: string
+      team:
+        required: false
+        default: "Unknown Team"
+        type: string
+      group:
+        required: false
+        default: ""
+        type: string
+      scheduleType:
+        required: false
+        default: "none"
+        type: string
+    secrets:
+      REPORT_RUN_API_KEY:
+        required: true
+
+jobs:
+  Deploy:
+    runs-on: [ "${{ inputs.runs-on }}" ]
+    permissions:
+      actions: read
+      contents: read    
+    steps:
+      - name: Report Workflow Run
+        run: | 
+          curl --location 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
+          --header 'x-api-key: ${{ secrets.REPORT_RUN_API_KEY }}' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+            "team": "${{ inputs.team }}",
+            "group": "${{ inputs.group }}",
+            "scheduleType": "${{ inputs.scheduleType }}",
+            "run": ${{ toJson(github.event.workflow_run) }}
+            }'
