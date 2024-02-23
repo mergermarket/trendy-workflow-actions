@@ -216,11 +216,11 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Run pre-build commands
-        uses: ${{ github.action_repository }}/.github/actions/run-all-commands@main
+        uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@debug-build
         with:
           github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}
           docker-password: ${{ secrets.DOCKER_PASSWORD }}
-          pre-command-json: ${{ inputs.pre-build-command-json }}
-          command-json: ${{ inputs.build-command-json }}
-          post-command-json: ${{ inputs.post-build-command-json }}
+          pre-commands-json: ${{ inputs.pre-build-command-json }}
+          commands-json: ${{ inputs.build-command-json }}
+          post-commands-json: ${{ inputs.post-build-command-json }}

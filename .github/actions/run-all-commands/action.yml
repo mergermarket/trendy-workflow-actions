@@ -10,36 +10,36 @@ inputs:
   github-token:
     description: 'github token'
     required: true
-  pre-command-json:
+  pre-commands-json:
     description: 'pre build command json'
     required: true
-  command-json:
+  commands-json:
     description: 'build command json'
     required: true
-  post-command-json:
+  post-commands-json:
     description: 'post build command json'
     required: true
 runs:
   using: 'composite'
   steps:
     - name: Run pre commands
-      uses: ${{ github.action_repository }}/.github/actions/run-commands@main
+      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@debug-build
       with:
-        github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
-        docker-username: ${{ secrets.DOCKER_USERNAME }}
-        docker-password: ${{ secrets.DOCKER_PASSWORD }}
-        build-command-json: ${{ inputs.pre-command-json }}
+        github-token: ${{ inputs.github-token }}
+        docker-username: ${{ inputs.docker-username }}
+        docker-password: ${{ inputs.docker-password }}
+        commands-json: ${{ inputs.pre-commands-json }}
     - name: Run commands
-      uses: ./.github/actions/run-commands
+      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@debug-build
       with:
-        github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
-        docker-username: ${{ secrets.DOCKER_USERNAME }}
-        docker-password: ${{ secrets.DOCKER_PASSWORD }}
-        build-command-json: ${{ inputs.command-json }}
+        github-token: ${{ inputs.github-token }}
+        docker-username: ${{ inputs.docker-username }}
+        docker-password: ${{ inputs.docker-password }}
+        commands-json: ${{ inputs.commands-json }}
     - name: Run post commands
-      uses: ./.github/actions/run-commands
+      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@debug-build
       with:
-        github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
-        docker-username: ${{ secrets.DOCKER_USERNAME }}
-        docker-password: ${{ secrets.DOCKER_PASSWORD }}
-        build-command-json: ${{ inputs.post-command-json }}
+        github-token: ${{ inputs.github-token }}
+        docker-username: ${{ inputs.docker-username }}
+        docker-password: ${{ inputs.docker-password }}
+        commands-json: ${{ inputs.post-commands-json }}

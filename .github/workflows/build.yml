@@ -112,10 +112,6 @@ jobs:
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
-      - name: Print input paramters
-        run: |
-          echo 'inputs:'
-          echo '${{toJSON(inputs)}}'
       - name: Install missing commands (self-hosted agents may need this)
         run : |
           echo "===== check: docker-compose ====="
@@ -203,11 +199,11 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Run pre-build commands
-        uses: ${{ github.action_repository }}/.github/actions/run-all-commands@main
+        uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@debug-build
         with:
           github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}
           docker-password: ${{ secrets.DOCKER_PASSWORD }}
-          pre-command-json: ${{ inputs.pre-build-command-json }}
-          command-json: ${{ inputs.build-command-json }}
-          post-command-json: ${{ inputs.post-build-command-json }}
+          pre-commands-json: ${{ inputs.pre-build-command-json }}
+          commands-json: ${{ inputs.build-command-json }}
+          post-commands-json: ${{ inputs.post-build-command-json }}
