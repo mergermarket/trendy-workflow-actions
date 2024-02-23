@@ -32,9 +32,11 @@ jobs:
     runs-on: [ "${{ inputs.runs-on }}" ]
     permissions:
       actions: read
-      contents: read    
+      contents: read
     steps:
       - name: Report Workflow Run
+        env:
+          WORKFLOW_RUN_JSON: ${{ toJson(github.event.workflow_run) }}
         run: | 
           curl --location 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
           --header 'x-api-key: ${{ secrets.REPORT_RUN_API_KEY }}' \
@@ -43,5 +45,5 @@ jobs:
             "team": "${{ inputs.team }}",
             "group": "${{ inputs.group }}",
             "scheduleType": "${{ inputs.scheduleType }}",
-            "run": ${{ toJson(github.event.workflow_run) }}
+            "run": '"$WORKFLOW_RUN_JSON"'
             }'
