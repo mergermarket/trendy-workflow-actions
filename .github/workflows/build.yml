@@ -61,7 +61,7 @@ on:
         type: string
       copy-platform-config-download-list-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       setup-node-version:
         required: false
@@ -69,15 +69,15 @@ on:
         type: number
       pre-build-commands-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       build-commands-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       post-build-commands-json:
         required: false
-        default: '[]'
+        default: "[]"
         type: string
       login-to-docker:
         required: false
@@ -101,19 +101,24 @@ on:
 
 jobs:
   Build:
-    runs-on: [ "${{ inputs.runs-on }}", "${{ inputs.runs-on-extra-tag1 }}", "${{ inputs.runs-on-extra-tag2 }}" ]
+    runs-on:
+      [
+        "${{ inputs.runs-on }}",
+        "${{ inputs.runs-on-extra-tag1 }}",
+        "${{ inputs.runs-on-extra-tag2 }}",
+      ]
     permissions:
       actions: read
       contents: read
     env:
-      JOB_NAME: 'build-${{ github.run_number }}-${{ github.sha }}'
+      JOB_NAME: "build-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
-      NPM_ACCESS_TOKEN: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      NPM_ACCESS_TOKEN: "${{ secrets.NPM_ACCESS_TOKEN }}"
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
       - name: Install missing commands (self-hosted agents may need this)
-        run : |
+        run: |
           echo "===== check: docker-compose ====="
           if ! command -v docker-compose &> /dev/null
           then
@@ -204,6 +209,6 @@ jobs:
           github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}
           docker-password: ${{ secrets.DOCKER_PASSWORD }}
-          pre-commands-json: ${{ inputs.pre-build-command-json }}
-          commands-json: ${{ inputs.build-command-json }}
-          post-commands-json: ${{ inputs.post-build-command-json }}
+          pre-commands-json: ${{ inputs.pre-build-commands-json }}
+          commands-json: ${{ inputs.build-commands-json }}
+          post-commands-json: ${{ inputs.post-build-commands-json }}

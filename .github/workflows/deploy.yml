@@ -109,7 +109,12 @@ on:
 
 jobs:
   Deploy:
-    runs-on: [ "${{ inputs.runs-on }}", "${{ inputs.runs-on-extra-tag1 }}", "${{ inputs.runs-on-extra-tag2 }}" ]
+    runs-on:
+      [
+        "${{ inputs.runs-on }}",
+        "${{ inputs.runs-on-extra-tag1 }}",
+        "${{ inputs.runs-on-extra-tag2 }}",
+      ]
     permissions:
       actions: read
       contents: read
@@ -117,7 +122,7 @@ jobs:
       JOB_NAME: "deploy-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
       GITHUB_TOKEN: dummy-token
-      NPM_ACCESS_TOKEN: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      NPM_ACCESS_TOKEN: "${{ secrets.NPM_ACCESS_TOKEN }}"
       MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
       MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
@@ -215,12 +220,12 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
-      - name: Run build commands
+      - name: Run deploy commands
         uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@debug-build
         with:
           github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}
           docker-password: ${{ secrets.DOCKER_PASSWORD }}
-          pre-commands-json: ${{ inputs.pre-build-command-json }}
-          commands-json: ${{ inputs.build-command-json }}
-          post-commands-json: ${{ inputs.post-build-command-json }}
+          pre-commands-json: ${{ inputs.before-deploy-commands-json }}
+          commands-json: ${{ inputs.deploy-commands-json }}
+          post-commands-json: ${{ inputs.after-deploy-commands-json }}
