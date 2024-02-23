@@ -215,7 +215,7 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
-      - name: Run pre-build commands
+      - name: Run build commands
         uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@debug-build
         with:
           github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
