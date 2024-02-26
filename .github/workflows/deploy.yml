@@ -221,7 +221,7 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Run deploy commands
-        uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@debug-build
+        uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@main
         with:
           github-token: ${{ secrets.NPM_ACCESS_TOKEN }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}

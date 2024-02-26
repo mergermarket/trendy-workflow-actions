@@ -23,21 +23,21 @@ runs:
   using: 'composite'
   steps:
     - name: Run pre commands
-      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@debug-build
+      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@main
       with:
         github-token: ${{ inputs.github-token }}
         docker-username: ${{ inputs.docker-username }}
         docker-password: ${{ inputs.docker-password }}
         commands-json: ${{ inputs.pre-commands-json }}
     - name: Run commands
-      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@debug-build
+      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@main
       with:
         github-token: ${{ inputs.github-token }}
         docker-username: ${{ inputs.docker-username }}
         docker-password: ${{ inputs.docker-password }}
         commands-json: ${{ inputs.commands-json }}
     - name: Run post commands
-      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@debug-build
+      uses: mergermarket/trendy-workflow-actions/.github/actions/run-commands@main
       with:
         github-token: ${{ inputs.github-token }}
         docker-username: ${{ inputs.docker-username }}
