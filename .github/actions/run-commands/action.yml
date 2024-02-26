@@ -1,0 +1,46 @@
+name: 'Run commands'
+description: 'Runs commands'
+inputs:
+  commands-json:
+    description: 'command json'
+    required: true
+  docker-username:
+    description: 'docker username'
+    required: true
+  docker-password:
+    description: 'docker password'
+    required: true
+  github-token:
+    description: 'github token'
+    required: true
+branding:
+  icon: 'hard-drive'
+  color: 'green'
+runs:
+  using: 'composite'
+  steps:
+    - name: run build commands
+      shell: bash
+      run: |
+        set -e
+        COMMAND_STR=""
+        if echo $COMMANDS_JSON | jq . ; then
+          echo $COMMANDS_JSON | jq -c .[] | while read command; do
+            COMMAND_STR=$(echo $command | sed -e 's/^"//' -e 's/"$//')
+            echo "*********************************************";
+            echo "*              running command              *";
+            echo "*********************************************";
+            echo "$COMMAND_STR";
+            echo "*********************************************";
+            eval $COMMAND_STR
+            echo "exit code: $?";
+            echo "*********************************************";
+          done
+        else
+          echo "commands-json is not valid!"
+        fi
+      env:
+        CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_USERNAME : ${{ inputs.docker-username }}
+        CDFLOW2_DOCKER_AUTH_INDEX_DOCKER_IO_PASSWORD : ${{ inputs.docker-password }}
+        COMMANDS_JSON : ${{ inputs.commands-json }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
