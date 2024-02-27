@@ -24,7 +24,7 @@ on:
         default: "none"
         type: string
     secrets:
-      REPORT_RUN_API_KEY:
+      GIT_ACTIONS_MONITOR_API_KEY:
         required: true
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
           WORKFLOW_RUN_JSON: ${{ toJson(github.event.workflow_run) }}
         run: | 
           curl --location 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
-          --header 'x-api-key: ${{ secrets.REPORT_RUN_API_KEY }}' \
+          --header 'x-api-key: ${{ secrets.GIT_ACTIONS_MONITOR_API_KEY }}' \
           --header 'Content-Type: application/json' \
           --data-raw '{
             "team": "${{ inputs.team }}",
