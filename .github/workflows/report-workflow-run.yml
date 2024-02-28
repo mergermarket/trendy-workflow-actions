@@ -29,7 +29,7 @@ on:
         type: boolean
       branch-name-for-filtering:
         required: false
-        default: "refs/heads/main"
+        default: "main"
         type: string
     secrets:
       GIT_ACTIONS_MONITOR_API_KEY:
@@ -41,7 +41,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-    if: ${{ !inputs.branch-filtering || github.ref == inputs.branch-name-for-filtering }}
+    if: ${{ !inputs.branch-filtering || github.event.workflow_run.head_branch == inputs.branch-name-for-filtering }}
     steps:
       - name: Report Workflow Run
         env:
@@ -49,8 +49,8 @@ jobs:
         run: |
           echo '${{toJSON(inputs)}}'
           echo "*****************"          
-          echo '${{toJSON(github)}}'
-          echo "*****************"
+          # echo '${{toJSON(github)}}'
+          # echo "*****************"
           echo "Report about: ${{github.event.workflow_run.html_url}}" 
           echo "*****************"
           curl --location 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
