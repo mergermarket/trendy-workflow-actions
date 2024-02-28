@@ -48,9 +48,7 @@ jobs:
           WORKFLOW_RUN_JSON: ${{ toJson(github.event.workflow_run) }}
         run: |
           echo '${{toJSON(inputs)}}'
-          echo "*****************"          
-          # echo '${{toJSON(github)}}'
-          # echo "*****************"
+          echo "*****************"
           echo "Report about: ${{github.event.workflow_run.html_url}}" 
           echo "*****************"
           curl --location 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
