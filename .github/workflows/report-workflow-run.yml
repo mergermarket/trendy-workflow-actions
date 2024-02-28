@@ -48,8 +48,11 @@ jobs:
           WORKFLOW_RUN_JSON: ${{ toJson(github.event.workflow_run) }}
         run: |
           echo "github.ref: ${{ github.ref }}"
-          echo "inputs.branch-name-for-filtering: ${{ inputs.branch-name-for-filtering }}"
+          echo "*****************"          
+          echo '${{toJSON(inputs)}}'
+          echo "*****************"
           echo "Report about: ${{github.event.workflow_run.html_url}}" 
+          echo "*****************"
           curl --location 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
           --header 'x-api-key: ${{ secrets.GIT_ACTIONS_MONITOR_API_KEY }}' \
           --header 'Content-Type: application/json' \
