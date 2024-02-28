@@ -23,6 +23,14 @@ on:
         required: false
         default: "none"
         type: string
+      branch-filtering:
+        required: false
+        default: true
+        type: boolean
+      branch-name-for-filtering:
+        required: false
+        default: "refs/heads/main"
+        type: string
     secrets:
       GIT_ACTIONS_MONITOR_API_KEY:
         required: true
@@ -33,6 +41,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+    if: ${{ !inputs.branch-filtering || github.ref == inputs.branch-name-for-filtering }}
     steps:
       - name: Report Workflow Run
         env:
