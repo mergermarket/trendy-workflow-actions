@@ -87,6 +87,10 @@ on:
         required: false
         default: true
         type: boolean
+      expose-github-runtime:
+        required: false
+        default: true
+        type: boolean
     secrets:
       MSTEAMS_WEBHOOK:
         required: true
@@ -180,6 +184,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Expose GitHub Runtime
+        if: ${{ inputs.expose-github-runtime }}
+        uses: crazy-max/ghaction-github-runtime@v3      
       - name: Copy platform-config from s3
         if: ${{ inputs.copy-platform-config }}
         run: |
