@@ -65,7 +65,7 @@ on:
         type: string
       setup-node-version:
         required: false
-        default: 14
+        default: 20
         type: number
       pre-build-commands-json:
         required: false
