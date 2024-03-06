@@ -49,7 +49,7 @@ on:
         type: string
       step-setup-node-version:
         required: false
-        default: 14
+        default: 20
         type: number
       step-npm-install-command:
         required: false
