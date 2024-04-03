@@ -87,6 +87,10 @@ on:
         required: false
         default: true
         type: boolean
+      install-missing-commands:
+        required: false
+        default: false
+        type: boolean
     secrets:
       MSTEAMS_WEBHOOK:
         required: true
@@ -122,6 +126,7 @@ jobs:
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
       - name: Install missing commands (self-hosted agents may need this)
+        if: ${{ inputs.install-missing-commands }}
         run: |
           echo "===== check: docker-compose ====="
           if ! command -v docker-compose &> /dev/null
