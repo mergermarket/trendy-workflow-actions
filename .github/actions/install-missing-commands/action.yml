@@ -1,0 +1,46 @@
+name: 'Install missing commands'
+description: 'install missing commands'
+branding:
+  icon: 'terminal'
+  color: 'green'
+runs:
+  using: 'composite'
+  steps:
+    - name: run build commands
+      shell: bash
+      run: |
+        echo "===== check: docker-compose ====="
+        if ! command -v docker-compose &> /dev/null
+        then
+          echo "install: docker-compose"
+          curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
+          chmod +x /usr/bin/docker-compose
+        fi
+        echo "run: docker-compose -v"
+        docker-compose -v
+        echo "=========="
+        echo "===== check: docker compose ====="
+        if (docker compose &> /dev/null) && [ $? -eq 0 ]
+        then
+          echo "docker compose is already installed"
+        else
+          echo "install: docker compose"
+           DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+          mkdir -p $DOCKER_CONFIG/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o $DOCKER_CONFIG/cli-plugins/docker-compose
+          sudo chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+        fi
+        echo "run: docker compose version"
+        docker compose version
+        echo "=========="
+        echo "===== check: jq ====="
+        if ! command -v jq &> /dev/null
+        then
+          echo "install: jq"
+          CMD_JQ=/usr/bin/jq
+          curl https://stedolan.github.io/jq/download/linux64/jq > $CMD_JQ && chmod +x $CMD_JQ
+          ls -la $CMD_JQ
+        fi
+        echo "run: jq --version"
+        jq --version
+        echo "=========="
