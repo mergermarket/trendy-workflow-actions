@@ -141,7 +141,7 @@ jobs:
           echo '${{toJSON(inputs)}}'
       - name: Install missing commands (self-hosted agents may need this)
         if: ${{ inputs.install-missing-commands }}
-        uses: mergermarket/trendy-workflow-actions/.github/actions/install-missing-commands@docker-compose-v2
+        uses: mergermarket/trendy-workflow-actions/.github/actions/install-missing-commands@main
       - name: Checkout main branch
         uses: actions/checkout@v4
       - name: Notify Teams
