@@ -60,3 +60,4 @@ jobs:
             "scheduleType": "${{ inputs.scheduleType }}",
             "run": '"$WORKFLOW_RUN_JSON"'
             }'
+          echo "curl exit code was:$?"
