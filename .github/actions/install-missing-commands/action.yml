@@ -45,5 +45,5 @@ runs:
         jq --version
         echo "=========="
         echo "===== install: ATK Library ====="
-        sudo amazon-linux-extras install epel -y
+        sudo yum install libatk-bridge-2.0.so.0
         echo "===== install: ATK Library ====="
