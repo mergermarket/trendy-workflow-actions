@@ -44,3 +44,6 @@ runs:
         echo "run: jq --version"
         jq --version
         echo "=========="
+        echo "===== install: ATK Library ====="
+        sudo amazon-linux-extras install epel -y
+        echo "===== install: ATK Library ====="
