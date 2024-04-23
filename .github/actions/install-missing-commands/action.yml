@@ -51,4 +51,5 @@ runs:
         sudo yum install libdrm -y
         sudo yum install libxkbcommon -y
         sudo yum install libXcomposite -y
+        sudo yum install libXdamage -y
         echo "===== install: ATK Library ====="
