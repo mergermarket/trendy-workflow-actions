@@ -50,4 +50,5 @@ runs:
         sudo yum install cups-libs -y
         sudo yum install libdrm -y
         sudo yum install libxkbcommon -y
+        sudo yum install libXcomposite -y
         echo "===== install: ATK Library ====="
