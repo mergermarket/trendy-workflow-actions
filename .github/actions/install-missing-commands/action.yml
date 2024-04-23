@@ -45,7 +45,6 @@ runs:
         jq --version
         echo "=========="
         echo "===== install: ATK Library ====="
-        sudo yum repolist
-        sudo yum install -y amazon-linux-extras
-        sudo amazon-linux-extras install epel -y
+        sudo yum repolist all
+        sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
         echo "===== install: ATK Library ====="
