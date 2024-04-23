@@ -55,5 +55,5 @@ runs:
         sudo yum install libXrandr -y
         sudo yum install libgbm -y
         sudo yum install pango -y
-        sudo yum install libasound -y
+        sudo yum install alsa-lib -y
         echo "===== install: ATK Library ====="
