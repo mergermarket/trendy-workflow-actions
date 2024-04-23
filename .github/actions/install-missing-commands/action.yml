@@ -46,5 +46,5 @@ runs:
         echo "=========="
         echo "===== install: ATK Library ====="
         sudo yum repolist all
-        sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        sudo yum install at-spi2-atk -y
         echo "===== install: ATK Library ====="
