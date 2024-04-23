@@ -45,5 +45,6 @@ runs:
         jq --version
         echo "=========="
         echo "===== install: ATK Library ====="
-        sudo apt-get install libatk1.0-0
+        sudo yum search libatk
+        sudo yum install libatk1.0-0
         echo "===== install: ATK Library ====="
