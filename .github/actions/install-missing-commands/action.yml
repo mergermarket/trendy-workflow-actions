@@ -54,4 +54,5 @@ runs:
         sudo yum install libXdamage -y
         sudo yum install libXrandr -y
         sudo yum install libgbm -y
+        sudo yum install libpango -y
         echo "===== install: ATK Library ====="
