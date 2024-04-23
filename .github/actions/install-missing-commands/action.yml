@@ -54,5 +54,5 @@ runs:
         sudo yum install libXdamage -y
         sudo yum install libXrandr -y
         sudo yum install libgbm -y
-        sudo yum install libpango -y
+        sudo yum install cairo-devel -y
         echo "===== install: ATK Library ====="
