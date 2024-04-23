@@ -45,5 +45,7 @@ runs:
         jq --version
         echo "=========="
         echo "===== install: ATK Library ====="
-        sudo yum install epel
+        sudo yum repolist
+        sudo yum install -y amazon-linux-extras
+        sudo amazon-linux-extras install epel -y
         echo "===== install: ATK Library ====="
