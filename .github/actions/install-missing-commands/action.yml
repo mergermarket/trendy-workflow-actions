@@ -47,4 +47,5 @@ runs:
         echo "===== install: ATK Library ====="
         sudo yum repolist all
         sudo yum install at-spi2-atk -y
+        sudo yum install cups-libs
         echo "===== install: ATK Library ====="
