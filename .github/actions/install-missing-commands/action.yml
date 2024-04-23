@@ -49,4 +49,5 @@ runs:
         sudo yum install at-spi2-atk -y
         sudo yum install cups-libs -y
         sudo yum install libdrm -y
+        sudo yum install libxkbcommon -y
         echo "===== install: ATK Library ====="
