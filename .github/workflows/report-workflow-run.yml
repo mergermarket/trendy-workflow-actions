@@ -2,11 +2,7 @@ name: trendy-workflow-actions/report-workflow-run
 
 on:
   workflow_call:
-    inputs:
-      runs-on:
-        required: false
-        default: "ubuntu-latest"
-        type: string
+    inputs:     
       report-api-host:
         required: false
         default: "aslive-api.ionanalytics.com"
@@ -37,7 +33,7 @@ on:
 
 jobs:
   ReportWorkflowRun:
-    runs-on: [ "${{ inputs.runs-on }}" ]
+    runs-on: ["self-hosted", "linux", "aws"]
     permissions:
       actions: read
       contents: read
