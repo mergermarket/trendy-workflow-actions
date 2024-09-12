@@ -47,6 +47,10 @@ on:
         required: false
         default: true
         type: boolean
+      setup-cdflow2:
+        required: false
+        default: false
+        type: boolean
       configure-aws-region:
         required: false
         default: "eu-west-1"
@@ -196,6 +200,9 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
+      - name: Setup cdflow2
+        uses: mergermarket/cdflow2-action@v4
+        if: ${{ inputs.setup-cdflow2 }}
       - name: Run build commands
         uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@main
         with:
