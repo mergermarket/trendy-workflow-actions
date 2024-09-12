@@ -201,7 +201,7 @@ jobs:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
       - name: Setup cdflow2
-        uses: mergermarket/cdflow2-action@v4
+        uses: mergermarket/cdflow2-action@v6
         if: ${{ inputs.setup-cdflow2 }}
       - name: Run build commands
         uses: mergermarket/trendy-workflow-actions/.github/actions/run-all-commands@main
