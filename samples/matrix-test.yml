@@ -16,7 +16,7 @@ on:
         type: string
     secrets:
       MSTEAMS_WEBHOOK:
-        required: true
+        required: false
 
 jobs:
   Build-and-Test:

@@ -4,7 +4,7 @@ on:
   workflow_call:
     secrets:
       MSTEAMS_WEBHOOK:
-        required: true
+        required: false
 
 jobs:
   Build:
