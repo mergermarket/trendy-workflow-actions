@@ -1,0 +1,47 @@
+name: trendy-workflow-actions/delete-workflow-run
+
+on:
+  workflow_call:
+    inputs:     
+      report-api-host:
+        required: false
+        default: "aslive-api.ionanalytics.com"
+        type: string
+      key:
+        required: false
+        default: ""
+        type: string
+      branch-filtering:
+        required: false
+        default: true
+        type: boolean
+      branch-name-for-filtering:
+        required: false
+        default: "main"
+        type: string
+    secrets:
+      GIT_ACTIONS_MONITOR_API_KEY:
+        required: true
+
+jobs:
+  ReportWorkflowRun:
+    runs-on: ["self-hosted", "linux", "aws"]
+    permissions:
+      actions: read
+      contents: read
+    if: ${{ !inputs.branch-filtering || github.event.workflow_run.head_branch == inputs.branch-name-for-filtering }}
+    steps:
+      - name: Delete Workflow Run
+        env:
+          WORKFLOW_RUN_JSON: ${{ toJson(github.event.workflow_run) }}
+        run: |
+          echo "*****************"
+          echo "Report about: ${{github.event.workflow_run.html_url}}" 
+          echo "*****************"
+          curl --location -X DELETE 'https://${{ inputs.report-api-host }}/git-actions-monitor/workflow-run' \
+          --header 'x-api-key: ${{ secrets.GIT_ACTIONS_MONITOR_API_KEY }}' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+            "key": "${{ inputs.key }}"
+            }'
+          echo "curl exit code was:$?"
