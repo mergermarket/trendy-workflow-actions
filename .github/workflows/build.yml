@@ -5,15 +5,15 @@ on:
     inputs:
       runs-on:
         required: false
-        default: "ubuntu-latest"
+        default: "self-hosted"
         type: string
       runs-on-extra-tag1:
         required: false
-        default: "ubuntu-latest"
+        default: "linux"
         type: string
       runs-on-extra-tag2:
         required: false
-        default: "ubuntu-latest"
+        default: "aws"
         type: string
       allow-to-skip-build:
         required: false
