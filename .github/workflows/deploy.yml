@@ -5,7 +5,7 @@ on:
     inputs:
       runs-on:
         required: false
-        default: "self-hosted"
+        default: ""
         type: string
       runs-on-json:
         required: false
