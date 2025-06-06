@@ -117,7 +117,7 @@ on:
 
 jobs:
   Deploy:
-    runs-on: ${{ (inputs.runs-on=='' && inputs.runs-on-json=='') && 'ubuntu-latest' || '["self-hosted", "linux", "aws"]' }}
+    runs-on: ${{ (inputs.runs-on=='' && inputs.runs-on-json=='') && 'ubuntu-latest' || (inputs.runs-on-json=='' && fromJSON('["self-hosted", "linux","aws"]') || fromJSON(inputs.runs-on-json)) }}
     permissions:
       actions: read
       contents: read
