@@ -11,14 +11,6 @@ on:
         required: false
         default: ""
         type: string
-      runs-on-extra-tag1:
-        required: false
-        default: ""
-        type: string
-      runs-on-extra-tag2:
-        required: false
-        default: ""
-        type: string
       allow-to-skip-build:
         required: false
         default: false
