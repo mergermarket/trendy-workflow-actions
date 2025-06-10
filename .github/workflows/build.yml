@@ -3,13 +3,9 @@ name: trendy-workflow-actions/build
 on:
   workflow_call:
     inputs:
-      runs-on:
-        required: false
-        default: ""
-        type: string
       runs-on-json:
         required: false
-        default: ""
+        default: "[\"ubuntu-latest\"]"
         type: string
       allow-to-skip-build:
         required: false
@@ -109,7 +105,7 @@ on:
 
 jobs:
   Build:
-    runs-on: ${{ (inputs.runs-on=='' && inputs.runs-on-json=='') && 'ubuntu-latest' || (inputs.runs-on-json=='' && fromJSON('["self-hosted", "linux","aws"]') || fromJSON(inputs.runs-on-json)) }}
+    runs-on: ${{ fromJSON(inputs.runs-on-json) }}
     permissions:
       actions: read
       contents: read
