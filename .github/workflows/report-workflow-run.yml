@@ -19,6 +19,10 @@ on:
         required: false
         default: "none"
         type: string
+      reportFailTo:
+        required: false
+        default: "Trendy"
+        type: string
       branch-filtering:
         required: false
         default: true
@@ -54,6 +58,7 @@ jobs:
             "team": "${{ inputs.team }}",
             "group": "${{ inputs.group }}",
             "scheduleType": "${{ inputs.scheduleType }}",
+            "reportFailTo": "${{ inputs.reportFailTo }}",
             "run": '"$WORKFLOW_RUN_JSON"'
             }'
           echo "curl exit code was:$?"
