@@ -21,7 +21,7 @@ on:
         type: string
       reportFailTo:
         required: false
-        default: "Trendy"
+        default: ""
         type: string
       branch-filtering:
         required: false
