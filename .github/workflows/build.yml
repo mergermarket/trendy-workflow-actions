@@ -5,7 +5,7 @@ on:
     inputs:
       runs-on-json:
         required: false
-        default: "[\"ubuntu-latest\"]"
+        default: "[\"self-hosted\", \"linux\", \"aws\"]"
         type: string
       allow-to-skip-build:
         required: false
