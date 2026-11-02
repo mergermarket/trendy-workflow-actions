@@ -5,7 +5,7 @@ on:
     inputs:
       runs-on-json:
         required: false
-        default: "[\"self-hosted\", \"linux\", \"aws\"]"
+        default: "[\"eus2-azure-github-runner-linux-x64-ubuntu-latest\"]"
         type: string
       branch-filtering-before-deployment:
         required: false
