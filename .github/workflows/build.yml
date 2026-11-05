@@ -5,7 +5,7 @@ on:
     inputs:
       runs-on-json:
         required: false
-        default: "[\"eus2-azure-github-runner-linux-x64-ubuntu-latest\"]"
+        default: "[\"ubuntu-latest\"]"
         type: string
       allow-to-skip-build:
         required: false
