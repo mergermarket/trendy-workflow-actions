@@ -94,9 +94,7 @@ on:
     secrets:
       MSTEAMS_WEBHOOK:
         required: false
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
+      AWS_ROLE_ARN:
         required: true
       NPM_ACCESS_TOKEN:
         required: true
@@ -117,6 +115,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      id-token: write
     env:
       JOB_NAME: "deploy-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
@@ -150,8 +149,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ inputs.configure-aws-region }}
       - name: Login to Docker
         if: ${{ inputs.login-to-docker }}
