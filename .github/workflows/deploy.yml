@@ -129,6 +129,17 @@ jobs:
       MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
     steps:
+      - name: Validate AWS credentials
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: |
+          if [[ -z "$AWS_ROLE_ARN" && ( -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ) ]]; then
+            echo "::error::Provide AWS_ROLE_ARN or both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+            exit 1
+          fi
       - name: Print input paramters
         run: |
           echo 'inputs:'

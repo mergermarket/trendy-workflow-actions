@@ -119,6 +119,17 @@ jobs:
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
+      - name: Validate AWS credentials
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: |
+          if [[ -z "$AWS_ROLE_ARN" && ( -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" ) ]]; then
+            echo "::error::Provide AWS_ROLE_ARN or both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+            exit 1
+          fi
       - name: Install missing commands (self-hosted agents may need this)
         if: ${{ inputs.install-missing-commands }}
         uses: mergermarket/trendy-workflow-actions/.github/actions/install-missing-commands@main
