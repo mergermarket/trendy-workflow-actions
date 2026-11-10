@@ -94,8 +94,12 @@ on:
     secrets:
       MSTEAMS_WEBHOOK:
         required: false
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
       AWS_ROLE_ARN:
-        required: true
+        required: false
       NPM_ACCESS_TOKEN:
         required: true
       NPM_JFROG_TOKEN:
@@ -149,6 +153,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ inputs.configure-aws-region }}
       - name: Login to Docker
