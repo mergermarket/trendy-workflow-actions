@@ -13,7 +13,9 @@ and runners need bash, curl (7.75 or later; older curl needs the AWS CLI) and ne
 Before logging in, `mergermarket/shared-actions/write-npmrc` replaces the project `.npmrc` with the `@mergermarket` and
 `@ion-analytics` scopes pointing at GitHub Packages (authenticated with `NPM_ACCESS_TOKEN`); other settings in a committed `.npmrc` are
 not kept. All other npm packages use `npm-approved`: the default `registry=` entry is set to the approved registry, while the scoped
-registries are preserved. npm's default `replace-registry-host` (`npmjs`) rewrites `registry.npmjs.org` lockfile URLs to the
+registries are preserved. The temporary CodeArtifact npm credentials are also appended to the project `.npmrc`, so existing Docker
+builds that consume this file as a BuildKit secret receive both registries' credentials.
+npm's default `replace-registry-host` (`npmjs`) rewrites `registry.npmjs.org` lockfile URLs to the
 approved registry; do not set it to `always`, because that also rewrites scoped GitHub Packages URLs to CodeArtifact. Unscoped
 registry misses fail the install rather than falling back to npmjs or JFrog. Third-party versions (including transitive
 dependencies) must be approved before callers migrate.
@@ -30,23 +32,20 @@ Lockfile entries for `@mergermarket` and `@ion-analytics` packages can keep thei
 lockfiles when unscoped packages resolve through other provider-specific paths: changing the registry host alone does not translate
 those paths to CodeArtifact package endpoints.
 
-For Docker builds, pass the temporary npm user config as a BuildKit secret and pass the approved registry as a build argument:
+For Docker builds, pass the combined project `.npmrc` as a BuildKit secret:
 
 ```sh
-docker build --secret id=npmrc,src="$NPM_CONFIG_USERCONFIG" \
-  --build-arg NPM_CONFIG_REGISTRY="$NPM_CONFIG_REGISTRY" .
+docker build --secret id=npmrc,src=.npmrc .
 ```
 
-The project `.npmrc` contains the GitHub Packages token, so do not copy it into an image layer: mount it as a second secret (for
-example `--secret id=project-npmrc,src=.npmrc`) and use both secrets only for the install:
+The project `.npmrc` contains both the GitHub Packages and CodeArtifact tokens, so do not copy it into an image layer.
+Mount it in the project working directory only for the install:
 
 ```dockerfile
 # WORKDIR /app
-ARG NPM_CONFIG_REGISTRY
-RUN --mount=type=secret,id=npmrc,required=true \
-    --mount=type=secret,id=project-npmrc,target=/app/.npmrc,required=true \
-    NPM_CONFIG_USERCONFIG=/run/secrets/npmrc npm ci
+RUN --mount=type=secret,id=npmrc,target=/app/.npmrc,required=true \
+    npm ci
 ```
 
-Do not copy the temporary user config or put its token in build arguments, image layers or artifacts. Runner-level configuration is
+Do not commit either npm config or put their tokens in build arguments, image layers or artifacts. Runner-level configuration is
 not a network enforcement boundary; runner egress restrictions are needed to prevent arbitrary build commands bypassing CodeArtifact.
