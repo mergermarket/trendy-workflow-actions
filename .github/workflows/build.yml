@@ -24,14 +24,17 @@ on:
         default: true
         type: boolean
       create-npmrc:
+        description: "Deprecated; npm is always configured to use CodeArtifact."
         required: false
         default: true
         type: boolean
       create-jfrog-npmrc:
+        description: "Deprecated; npm is always configured to use CodeArtifact."
         required: false
         default: false
         type: boolean
       create-ion-analytics-npmrc:
+        description: "Deprecated; npm is always configured to use CodeArtifact."
         required: false
         default: false
         type: boolean
@@ -116,6 +119,7 @@ jobs:
       JOB_NAME: "build-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
       NPM_ACCESS_TOKEN: "${{ secrets.NPM_ACCESS_TOKEN }}"
+      NPM_CONFIG_REPLACE_REGISTRY_HOST: always
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
@@ -181,31 +185,22 @@ jobs:
             echo "run: aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST";
             aws s3 sync $COPY_PLATFORM_CONFIG_INPUT_SRC $COPY_PLATFORM_CONFIG_INPUT_DEST;
           done
-      - name: Create .npmrc
-        if: ${{ inputs.create-npmrc }}
-        run: |
-          echo "@mergermarket:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
-          echo "registry=https://registry.npmjs.org" >> .npmrc
-      - name: Create ION Analytics .npmrc
-        if: ${{ inputs.create-ion-analytics-npmrc }}
-        run: |
-          echo "@ion-analytics:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" >> .npmrc
-          echo "registry=https://registry.npmjs.org" >> .npmrc
-      - name: Create JFROG .npmrc
-        if: ${{ inputs.create-jfrog-npmrc }}
-        run: |
-          echo "registry=https://mmrepo.jfrog.io/mmrepo/api/npm/npm-virtual/" >> .npmrc
-          echo "username = jenkins-read-only" >> .npmrc
-          echo "_password = ${{ secrets.NPM_JFROG_TOKEN }}" >> .npmrc
-          echo "always-auth = true" >> .npmrc
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         if: ${{ inputs.setup-node }}
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
+      - name: Log in to CodeArtifact
+        uses: ION-Analytics/iona-central-package-repository/actions/codeartifact-login@3a00012fbc9b846824b297f1597dd227e1613b52
+        with:
+          role-to-assume: arn:aws:iam::159860816451:role/live-iona-central-package-repository-ci-reader
+      - name: Configure npm registries
+        shell: bash
+        run: |
+          touch .npmrc
+          sed -i -E '/^[[:space:]]*(@[^:[:space:]]+:)?registry[[:space:]]*=/d' .npmrc
+          printf '\nregistry=%s\n' "$NPM_CONFIG_REGISTRY" >> .npmrc
       - name: Setup cdflow2
         uses: mergermarket/cdflow2-action@v6
         if: ${{ inputs.setup-cdflow2 }}
