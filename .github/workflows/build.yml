@@ -195,7 +195,7 @@ jobs:
         with:
           npm-access-token: ${{ env.NPM_ACCESS_TOKEN }}
       - name: Log in to CodeArtifact
-        uses: ION-Analytics/iona-central-package-repository/actions/codeartifact-login@3a00012fbc9b846824b297f1597dd227e1613b52
+        uses: ION-Analytics/iona-central-package-repository/actions/codeartifact-login@fadc2f64a0b32beae5ab9beda067f83f76f304eb
         with:
           role-to-assume: arn:aws:iam::159860816451:role/live-iona-central-package-repository-ci-reader
       - name: Configure npm registries

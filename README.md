@@ -3,12 +3,12 @@
 ## Approved package repositories
 
 The reusable build and deploy workflows log in to CodeArtifact after Node.js setup and before any caller-supplied commands. Both use
-`ION-Analytics/iona-central-package-repository/actions/codeartifact-login@3a00012fbc9b846824b297f1597dd227e1613b52`
+`ION-Analytics/iona-central-package-repository/actions/codeartifact-login@fadc2f64a0b32beae5ab9beda067f83f76f304eb`
 with the read-only role `arn:aws:iam::159860816451:role/live-iona-central-package-repository-ci-reader`.
 The action configures npm, pnpm, Yarn, pip and uv without replacing the job's AWS build/deploy credentials.
 
 Callers must grant `id-token: write` and `contents: read` to the reusable workflow job. The reader role must trust the calling repository,
-and runners need the AWS CLI, curl, python3 and network access to AWS STS and CodeArtifact.
+and runners need bash, curl (7.75 or later; older curl needs the AWS CLI) and network access to AWS STS and CodeArtifact.
 
 Before logging in, `mergermarket/shared-actions/write-npmrc` replaces the project `.npmrc` with the `@mergermarket` and
 `@ion-analytics` scopes pointing at GitHub Packages (authenticated with `NPM_ACCESS_TOKEN`); other settings in a committed `.npmrc` are
