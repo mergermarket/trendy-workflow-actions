@@ -206,6 +206,10 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
+      - name: Prepare .npmrc
+        uses: mergermarket/shared-actions/write-npmrc@bd171fa70a8de555ce507186b353a5bb95d1272e # main
+        with:
+          npm-access-token: ${{ env.NPM_ACCESS_TOKEN }}
       - name: Log in to CodeArtifact
         uses: ION-Analytics/iona-central-package-repository/actions/codeartifact-login@3a00012fbc9b846824b297f1597dd227e1613b52
         with:
@@ -214,7 +218,7 @@ jobs:
         shell: bash
         run: |
           touch .npmrc
-          sed -i -E '/^[[:space:]]*(@[^:[:space:]]+:)?registry[[:space:]]*=/d' .npmrc
+          sed -i -E '/^[[:space:]]*registry[[:space:]]*=/d' .npmrc
           printf '\nregistry=%s\n' "$NPM_CONFIG_REGISTRY" >> .npmrc
       - name: Setup cdflow2
         uses: mergermarket/cdflow2-action@v6
