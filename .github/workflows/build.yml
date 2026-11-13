@@ -204,6 +204,7 @@ jobs:
           touch .npmrc
           sed -i -E '/^[[:space:]]*registry[[:space:]]*=/d' .npmrc
           printf '\nregistry=%s\n' "$NPM_CONFIG_REGISTRY" >> .npmrc
+          cat "$NPM_CONFIG_USERCONFIG" >> .npmrc
       - name: Setup cdflow2
         uses: mergermarket/cdflow2-action@v6
         if: ${{ inputs.setup-cdflow2 }}
