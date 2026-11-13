@@ -13,8 +13,10 @@ and runners need the AWS CLI, curl, python3 and network access to AWS STS and Co
 Before logging in, `mergermarket/shared-actions/write-npmrc` replaces the project `.npmrc` with the `@mergermarket` and
 `@ion-analytics` scopes pointing at GitHub Packages (authenticated with `NPM_ACCESS_TOKEN`); other settings in a committed `.npmrc` are
 not kept. All other npm packages use `npm-approved`: the default `registry=` entry is set to the approved registry, while the scoped
-registries are preserved. npm is also configured to replace registry hosts in lockfile URLs. Unscoped registry misses fail the
-install rather than falling back to npmjs or JFrog. Third-party versions (including transitive dependencies) must be approved before callers migrate.
+registries are preserved. npm's default `replace-registry-host` (`npmjs`) rewrites `registry.npmjs.org` lockfile URLs to the
+approved registry; do not set it to `always`, because that also rewrites scoped GitHub Packages URLs to CodeArtifact. Unscoped
+registry misses fail the install rather than falling back to npmjs or JFrog. Third-party versions (including transitive
+dependencies) must be approved before callers migrate.
 
 The `create-npmrc`, `create-ion-analytics-npmrc` and `create-jfrog-npmrc` inputs remain accepted for compatibility but no longer select
 registries or disable CodeArtifact. Existing secrets are unchanged; `NPM_JFROG_TOKEN` is no longer used for registry configuration.
@@ -43,7 +45,7 @@ example `--secret id=project-npmrc,src=.npmrc`) and use both secrets only for th
 ARG NPM_CONFIG_REGISTRY
 RUN --mount=type=secret,id=npmrc,required=true \
     --mount=type=secret,id=project-npmrc,target=/app/.npmrc,required=true \
-    NPM_CONFIG_USERCONFIG=/run/secrets/npmrc npm ci --replace-registry-host=always
+    NPM_CONFIG_USERCONFIG=/run/secrets/npmrc npm ci
 ```
 
 Do not copy the temporary user config or put its token in build arguments, image layers or artifacts. Runner-level configuration is

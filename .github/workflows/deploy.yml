@@ -128,7 +128,6 @@ jobs:
       VERSION: ${{ github.run_number }}-${{ github.sha }}
       GITHUB_TOKEN: dummy-token
       NPM_ACCESS_TOKEN: "${{ secrets.NPM_ACCESS_TOKEN }}"
-      NPM_CONFIG_REPLACE_REGISTRY_HOST: always
       MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
       MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
     if: ${{ !inputs.branch-filtering-before-deployment || github.ref == inputs.branch-name-for-filtering-deployment }}
