@@ -119,7 +119,6 @@ jobs:
       JOB_NAME: "build-${{ github.run_number }}-${{ github.sha }}"
       VERSION: ${{ github.run_number }}-${{ github.sha }}
       NPM_ACCESS_TOKEN: "${{ secrets.NPM_ACCESS_TOKEN }}"
-      NPM_CONFIG_REPLACE_REGISTRY_HOST: always
       GITHUB_TOKEN: dummy-token
     if: ${{ !inputs.allow-to-skip-build || ( inputs.allow-to-skip-build && !contains(toJSON(github.event.commits.*.message), '${{inputs.text-to-find-in-commit-to-skip-build}}')) }}
     steps:
