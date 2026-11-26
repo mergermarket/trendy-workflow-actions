@@ -3,7 +3,7 @@
 ## Approved package repositories
 
 The reusable build and deploy workflows log in to CodeArtifact after Node.js setup and before any caller-supplied commands. Both use
-`ION-Analytics/iona-central-package-repository/actions/codeartifact-login@fadc2f64a0b32beae5ab9beda067f83f76f304eb`
+`ION-Analytics/iona-central-package-repository/actions/codeartifact-login@acdfd4b19a98dbdcb05d85bf32a74a6af27ea699`
 with the read-only role `arn:aws:iam::159860816451:role/live-iona-central-package-repository-ci-reader`.
 The action configures npm, pnpm, Yarn, pip and uv without replacing the job's AWS build/deploy credentials.
 
@@ -12,9 +12,10 @@ and runners need bash, curl (7.75 or later; older curl needs the AWS CLI) and ne
 
 Before logging in, `mergermarket/shared-actions/write-npmrc` replaces the project `.npmrc` with the `@mergermarket` and
 `@ion-analytics` scopes pointing at GitHub Packages (authenticated with `NPM_ACCESS_TOKEN`); other settings in a committed `.npmrc` are
-not kept. All other npm packages use `npm-approved`: the default `registry=` entry is set to the approved registry, while the scoped
-registries are preserved. The temporary CodeArtifact npm credentials are also appended to the project `.npmrc`, so existing Docker
-builds that consume this file as a BuildKit secret receive both registries' credentials.
+not kept. The login action uses `npmrc-path: .npmrc` to append the approved registry and read-only CodeArtifact credentials while
+preserving the scoped GitHub Packages settings. This compatibility option keeps existing callers that mount workspace `.npmrc`
+working; no manual registry rewrite or credential-file concatenation is needed. Both npm credential files are removed with
+`if: always()` after caller commands finish, including on failure.
 npm's default `replace-registry-host` (`npmjs`) rewrites `registry.npmjs.org` lockfile URLs to the
 approved registry; do not set it to `always`, because that also rewrites scoped GitHub Packages URLs to CodeArtifact. Unscoped
 registry misses fail the install rather than falling back to npmjs or JFrog. Third-party versions (including transitive
@@ -46,6 +47,15 @@ Mount it in the project working directory only for the install:
 RUN --mount=type=secret,id=npmrc,target=/app/.npmrc,required=true \
     npm ci
 ```
+
+For a standalone job that does not need the workspace file or GitHub Packages scopes, prefer the login action's default output:
+
+```sh
+docker build --secret "id=npmrc,src=$NPM_CONFIG_USERCONFIG" .
+```
+
+CodeArtifact reader credentials cannot publish. Callers publishing to GitHub Packages or npmjs must retain the corresponding
+registry's authentication; CodeArtifact publication requires a publisher role and publishing configuration.
 
 Do not commit either npm config or put their tokens in build arguments, image layers or artifacts. Runner-level configuration is
 not a network enforcement boundary; runner egress restrictions are needed to prevent arbitrary build commands bypassing CodeArtifact.
