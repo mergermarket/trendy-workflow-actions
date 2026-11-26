@@ -195,16 +195,10 @@ jobs:
         with:
           npm-access-token: ${{ env.NPM_ACCESS_TOKEN }}
       - name: Log in to CodeArtifact
-        uses: ION-Analytics/iona-central-package-repository/actions/codeartifact-login@fadc2f64a0b32beae5ab9beda067f83f76f304eb
+        uses: ION-Analytics/iona-central-package-repository/actions/codeartifact-login@acdfd4b19a98dbdcb05d85bf32a74a6af27ea699
         with:
           role-to-assume: arn:aws:iam::159860816451:role/live-iona-central-package-repository-ci-reader
-      - name: Configure npm registries
-        shell: bash
-        run: |
-          touch .npmrc
-          sed -i -E '/^[[:space:]]*registry[[:space:]]*=/d' .npmrc
-          printf '\nregistry=%s\n' "$NPM_CONFIG_REGISTRY" >> .npmrc
-          cat "$NPM_CONFIG_USERCONFIG" >> .npmrc
+          npmrc-path: .npmrc
       - name: Setup cdflow2
         uses: mergermarket/cdflow2-action@v6
         if: ${{ inputs.setup-cdflow2 }}
@@ -217,3 +211,7 @@ jobs:
           pre-commands-json: ${{ inputs.pre-build-commands-json }}
           commands-json: ${{ inputs.build-commands-json }}
           post-commands-json: ${{ inputs.post-build-commands-json }}
+      - name: Remove npm credentials
+        if: always()
+        shell: bash
+        run: rm -f .npmrc "${NPM_CONFIG_USERCONFIG:-}"
