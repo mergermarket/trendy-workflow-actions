@@ -27,6 +27,11 @@ on:
         required: false
         default: true
         type: boolean
+      codeartifact-only:
+        description: "Use CodeArtifact without configuring GitHub Packages npm scopes."
+        required: false
+        default: false
+        type: boolean
       create-npmrc:
         description: "Deprecated; npm is always configured to use CodeArtifact."
         required: false
@@ -104,7 +109,7 @@ on:
       AWS_ROLE_ARN:
         required: false
       NPM_ACCESS_TOKEN:
-        required: true
+        required: false
       NPM_JFROG_TOKEN:
         required: false
       MONGODB_ATLAS_PUBLIC_KEY:
@@ -205,7 +210,22 @@ jobs:
         with:
           node-version: ${{ inputs.setup-node-version }}
           cache: npm
+      - name: Validate npm configuration
+        shell: bash
+        env:
+          CODEARTIFACT_ONLY: ${{ inputs.codeartifact-only }}
+        run: |
+          if [[ "$CODEARTIFACT_ONLY" != "true" && -z "$NPM_ACCESS_TOKEN" ]]; then
+            echo "::error::NPM_ACCESS_TOKEN is required unless codeartifact-only is enabled."
+            exit 1
+          fi
+          if [[ "$CODEARTIFACT_ONLY" == "true" && -f .npmrc ]] &&
+             grep -Eiq '^[[:space:]]*@[^[:space:]:]+:registry[[:space:]]*=' .npmrc; then
+            echo "::error::Remove scoped registry mappings from .npmrc before enabling codeartifact-only."
+            exit 1
+          fi
       - name: Prepare .npmrc
+        if: ${{ !inputs.codeartifact-only }}
         uses: mergermarket/shared-actions/write-npmrc@bd171fa70a8de555ce507186b353a5bb95d1272e # main
         with:
           npm-access-token: ${{ env.NPM_ACCESS_TOKEN }}
